@@ -22,7 +22,7 @@ export const BOOKS_MOCK: BookCardProps[] = [
     title: "O Pequeno Príncipe",
     author: "Antoine de Saint-Exupéry",
     category: "Infantil",
-    stock: 8,
+    stock: 0,
     imageUrl: "images/Infantil.png"
   },
   {
@@ -77,15 +77,25 @@ export const BookCard = ({ title, author, category, stock, imageUrl }: BookCardP
 
           {/* Botões */}
         <div className="grid grid-cols-[115px_147px_66px] gap-2">
-          <button className="flex items-center justify-center gap-[7px] w-28.75 h-[47.33px] bg-transparent border-[1.67px] border-solid border-[rgba(0,195,137,1)] rounded-lg cursor-pointer">  
+          <button className="flex items-center justify-center gap-[7px] w-28.75 h-[47.33px] bg-transparent border-[1.67px] border-solid border-[rgba(0,195,137,1)] rounded-lg cursor-pointer transition-all duration-200 hover:shadow-sm active:scale-95 active:bg-[rgba(0,195,137,0.15)]">  
             <Eye  size={18} className="text-[rgba(0,195,137,1)]" />
             <span className="font-medium text-[rgba(0,195,137,1)] text-base leading-6">Ver</span>
           </button>
-          <button className="flex items-center gap-[6px] justify-center w-36.75 h-[47.33px] bg-[rgba(0,195,137,1)] rounded-lg cursor-pointer">
-            <Bookmark size={18} className="text-[rgba(255,255,255,1)]" />
-            <span className="font-medium text-[rgba(255,255,255,1)] text-base leading-6">Emprestar</span>
+          <button 
+            disabled={stock === 0}
+            className={`flex items-center gap-[6px] justify-center w-36.75 h-[47.33px] rounded-lg 
+              transition-all duration-200 active:scale-95
+              ${stock === 0 
+                ? "bg-gray-400 cursor-not-allowed" 
+                : "bg-[rgba(0,195,137,1)] cursor-pointer hover:bg-[rgba(0,175,127,1)] hover:shadow-md active:brightness-90"
+              }`}
+          >
+            <Bookmark size={18} className="text-white" />
+            <span className="font-medium text-white text-base leading-6">
+              {stock === 0 ? "Esgotado" : "Emprestar"}
+            </span>
           </button>
-          <button className="flex items-center justify-center  w-16.5 h-[47.33px] bg-[rgba(239,68,68,1)] rounded-lg cursor-pointer">
+          <button className="flex items-center justify-center  w-16.5 h-[47.33px] bg-[rgba(239,68,68,1)] rounded-lg cursor-pointer transition-all duration-200 hover:shadow-lg active:scale-90 active:brightness-90">
             <Trash2 size={18} className="text-[rgba(255,255,255,1)]" />
           </button>
         </div>
