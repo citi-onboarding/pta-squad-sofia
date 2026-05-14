@@ -55,7 +55,7 @@ export const BOOKS_MOCK: BookCardProps[] = [
   }
 ];
 
-export const BookCard = ({ title, author, category, stock, imageUrl }: BookCardProps) => {
+export default function BookCard({ title, author, category, stock, imageUrl }: BookCardProps) {
     return (
       <article className="flex flex-col gap-6  w-98.5 p-4 bg-white shadow-lg rounded-lg">
           {/* Imagem do livro */}
