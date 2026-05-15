@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { Eye, Trash2, Bookmark } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -106,7 +107,7 @@ export default function BookCard({ title, author, category, stock }: BookCardPro
       <div className="grid grid-cols-[115px_147px_66px] gap-2">
         <button 
           onClick={handleViewDetails}
-          className="flex items-center justify-center gap-[7px] w-28.75 h-[47.33px] bg-transparent border-[1.67px] border-solid border-[rgba(0,195,137,1)] rounded-lg cursor-pointer transition-all duration-200 hover:shadow-sm active:scale-95 active:bg-[rgba(0,195,137,0.15)]">  
+          className="flex items-center justify-center gap-[7px] w-28.75 h-[47.33px] bg-transparent border-[1.67px] border-solid border-[rgba(0,195,137,1)] rounded-lg cursor-pointer transition-all duration-200 hover:bg-[rgba(0,195,137,0.08)] hover:shadow-md active:scale-95 active:bg-[rgba(0,195,137,0.15)]">  
           <Eye  size={18} className="text-[rgba(0,195,137,1)]" />
           <span className="font-medium text-[rgba(0,195,137,1)] text-base leading-6">Ver</span>
         </button>
