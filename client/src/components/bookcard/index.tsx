@@ -1,7 +1,5 @@
 "use client";
-import React from 'react';
 import { Eye, Trash2, Bookmark } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 import imgTecnologia from '../../assets/images/Tecnologia.png';
 import imgInfantil from '../../assets/images/Infantil.png';
@@ -16,48 +14,7 @@ interface BookCardProps {
   stock: number;
 }
 
-
-export const BOOKS_MOCK: BookCardProps[] = [
-  {
-    title: "Clean Code",
-    author: "Robert C. Martin",
-    category: "Tecnologia",
-    stock: 5,
-  },
-  {
-    title: "O Pequeno Príncipe",
-    author: "Antoine de Saint-Exupéry",
-    category: "Infantil",
-    stock: 0,
-  },
-  {
-    title: "Dom Casmurro",
-    author: "Machado de Assis",
-    category: "Romance",
-    stock: 3,
-  }, 
-  {
-    title: "Sapiens",
-    author: "Yuval Noah Harari",
-    category: "História",
-    stock: 6,
-  },
-  {
-    title: "Cosmos",
-    author: "Carl Sagan",
-    category: "Ciências",
-    stock: 4,
-  },
-  {
-    title: "1984",
-    author: "George Orwell",
-    category: "Romance",
-    stock: 7,
-  }
-];
-
 export default function BookCard({ title, author, category, stock }: BookCardProps) {
-  const router = useRouter();
 
   let imageSource;
   if (category === "Tecnologia") {
@@ -74,21 +31,11 @@ export default function BookCard({ title, author, category, stock }: BookCardPro
     imageSource = imgTecnologia;
   }
 
-  const handleViewDetails = () => {
-    router.push(`/details/${title.toLowerCase().replace(/ /g, '-')}`);
-  };
-
-  const handleBorrow = () => {
-    if (stock > 0) {
-      router.push(`/borrow/${title.toLowerCase().replace(/ /g, '-')}`);
-    }
-  };
-
   return (
-    <article className="flex flex-col gap-6  w-[394.67px] p-4 bg-white shadow-lg rounded-lg">
+    <article className="flex flex-col gap-6 w-[394.67px] p-4 bg-white shadow-lg rounded-lg">
       {/* Imagem do livro */}
       <img 
-        className="w-full h-64 object-cover rounded-md bg-gray-200"
+        className="w-full h-auto rounded-md bg-gray-200"
         src={imageSource.src}
         alt={`Capa do livro ${title}`}
         /> 
@@ -106,13 +53,11 @@ export default function BookCard({ title, author, category, stock }: BookCardPro
         {/* Botões */}
       <div className="grid grid-cols-[115px_147px_66px] gap-2">
         <button 
-          onClick={handleViewDetails}
           className="flex items-center justify-center gap-[7px] w-28.75 h-[47.33px] bg-transparent border-[1.67px] border-solid border-[rgba(0,195,137,1)] rounded-lg cursor-pointer transition-all duration-200 hover:bg-[rgba(0,195,137,0.08)] hover:shadow-md active:scale-95 active:bg-[rgba(0,195,137,0.15)]">  
           <Eye  size={18} className="text-[rgba(0,195,137,1)]" />
           <span className="font-medium text-[rgba(0,195,137,1)] text-base leading-6">Ver</span>
         </button>
         <button 
-          onClick={handleBorrow}
           disabled={stock === 0}
           className={`flex items-center gap-[6px] justify-center w-36.75 h-[47.33px] rounded-lg 
             transition-all duration-200 active:scale-95
