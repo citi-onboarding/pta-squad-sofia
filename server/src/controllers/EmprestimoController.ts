@@ -11,7 +11,7 @@ class EmprestimoController {
         const livro = await tx.livro.findUnique({ where: { id: livroId } });
         
         if (!livro || livro.quantidadeDisponivel <= 0) {
-          return res.status(400).json({ error: "Livro não encontrado ou sem estoque disponível." });
+          throw new Error("Livro não encontrado ou sem estoque disponível.");
         }
 
         const novoEmprestimo = await tx.emprestimo.create({
@@ -33,7 +33,7 @@ class EmprestimoController {
 
       return res.status(201).json(resultado);
     } catch (error: any) {
-      return res.status(500).json({ error: error.message });
+      return res.status(400).json({ error: error.message });
     }
   }
 
