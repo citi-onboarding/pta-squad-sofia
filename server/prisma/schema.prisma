@@ -10,15 +10,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int    @id @default(autoincrement())
-  firstName String
-  lastName  String
-  age       Int
+enum Categoria {
+  ROMANCE
+  INFANTIL
+  TECNOLOGIA
+  HISTORIA
+  CIENCIAS
 }
 
-model Test {
-  id   Int    @id @default(autoincrement())
-  name String
-  age  Int
+enum StatusEmprestimo {
+  EM_ANDAMENTO
+  DEVOLVIDO
+  ATRASADO
+}
+
+model Livro {
+  id                    String            @id @default(uuid())
+  titulo                String
+  autor                 String
+  isbn                  String            @unique
+  editora               String
+  quantidadeTotal       Int
+  quantidadeDisponivel  Int 
+  categoria             Categoria
+  ano                   Int
+  emprestimo            Emprestimo[]
+}
+
+model Emprestimo {
+  id                    String @id        @default(uuid())
+  nomeCliente           String
+  emailCliente          String
+  dataLocacao           DateTime          @default(now())
+  dataPrevistaDevolucao DateTime
+  status                StatusEmprestimo  @default(EM_ANDAMENTO)
+  livroId               String 
+  livro                 Livro             @relation(fields: [livroId], references: [id], onDelete: Restrict)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
 }

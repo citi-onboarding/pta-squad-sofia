@@ -1,11 +1,18 @@
 import express from "express";
-import userController from "./controllers/UserController";
+import emprestimoController from "./controllers/EmprestimoController";
+import dashboardController from "./controllers/DashboardController";
+import { createBook, searchBooks, deleteBook } from "./controllers/LivroController"
 
 const routes = express.Router();
 
-routes.post("/user", userController.create);
-routes.get("/user", userController.get);
-routes.delete("/user/:id", userController.delete);
-routes.patch("/user/:id", userController.update);
+routes.post("/emprestimos", emprestimoController.create);
+routes.get("/emprestimos", emprestimoController.get);
+
+const routes = express.Router();
+routes.post("/livros", createBook);
+routes.get("/livros", searchBooks);
+routes.delete("/livros/:id", deleteBook);
+
+routes.get("/dashboard", dashboardController.get);
 
 export default routes;
