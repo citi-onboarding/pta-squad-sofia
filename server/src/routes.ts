@@ -8,5 +8,5 @@ routes.post("/emprestimos", emprestimoController.create);
 routes.get("/emprestimos", emprestimoController.get);
 
 routes.get("/dashboard", dashboardController.get);
-
+routes.patch("/emprestimos/:id/status", emprestimoController.updateStatus);
 export default routes;
