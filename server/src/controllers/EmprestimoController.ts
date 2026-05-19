@@ -53,6 +53,21 @@ class EmprestimoController {
       return res.status(500).json({ error: "Erro ao buscar empréstimos." });
     }
   }
+  async updateStatus(req: Request, res: Response) {
+  const { id } = req.params; 
+  const { status } = req.body; 
+
+  try {
+    const updatedEmprestimo = await prisma.emprestimo.update({
+      where: { id },
+      data: { status },
+    });
+
+    return res.status(200).json(updatedEmprestimo);
+  } catch (error) {
+    return res.status(400).json({ error: "Erro ao atualizar o status do empréstimo." });
+  }
+}
 }
 
 export default new EmprestimoController();
