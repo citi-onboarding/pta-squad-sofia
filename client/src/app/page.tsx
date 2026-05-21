@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import BookDetails from "@/components/BookDetails";
-import { RecentLoansTable } from "@/components/recentLoansTable";
+import { RecentLoansTable } from "@/components/RecentLoansTable/recentLoansTable";
 
 const mockBookData = {
   title: "O Senhor dos Anéis",
