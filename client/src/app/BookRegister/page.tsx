@@ -11,12 +11,12 @@ const schema = yup.object({
   title: yup.string().required("*Este é um campo obrigatório"),
 
   isbn: yup
-  .string()
-  .required("*Este é um campo obrigatório")
-  .matches(
-    /^(?:\d{10}|\d{13})$/,
-    "O ISBN deve possuir 10 ou 13 dígitos"
-  ),
+    .string()
+    .required("*Este é um campo obrigatório")
+    .matches(
+      /^(?:\d{10}|\d{13})$/,
+      "O ISBN deve possuir 10 ou 13 dígitos"
+    ),
 
   year: yup
     .number()
@@ -47,12 +47,12 @@ export default function BookRegister() {
     formState: { errors, submitCount },
   } = useForm<FormData>({
     resolver: yupResolver(schema),
-  })
+  });
 
   const selectedCategory = watch("category");
 
   function onSubmit(data: FormData) {
-    console.log(data)
+    console.log(data);
   }
 
   return (
@@ -113,5 +113,5 @@ export default function BookRegister() {
         </form>
       </main>
     </>
-  )
+  );
 }
