@@ -3,6 +3,20 @@
 import HistoryCard from "../HistoryCard";
 import { X } from "lucide-react";
 
+import imgTecnologia from '../../assets/images/Tecnologia.png';
+import imgInfantil from '../../assets/images/Infantil.png';
+import imgRomance from '../../assets/images/Romance.png';
+import imgHistoria from '../../assets/images/Historia.png';
+import imgCiencias from '../../assets/images/Ciencias.png';
+
+const categoryImages: Record<string, { src: string }> = {
+    "Tecnologia": imgTecnologia,
+    "Infantil": imgInfantil,
+    "Romance": imgRomance,
+    "História": imgHistoria,
+    "Ciências": imgCiencias,
+};
+
 interface Book {
     title: string;
     author: string;
@@ -23,10 +37,12 @@ interface BookDetailsProps {
 export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) {
     if (!isOpen || !book) return null;
 
+    const categoryImage = categoryImages[book.category] ?? imgTecnologia;
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 p-4">
-            <div className="flex w-full max-w-4xl flex-col gap-6 rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-                
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-16">
+            <div className="flex w-full max-w-4xl max-h-full flex-col gap-6 overflow-y-auto rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+
                 {/* Header */}
                 <header className="flex items-center justify-between border-b border-gray-100 pb-4">
                     <h1 className="text-xl font-semibold text-gray-900">Detalhes do livro</h1>
@@ -37,8 +53,11 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
 
                 {/* Book Informations */}
                 <section className="flex gap-8">
-                    {/* Placeholder of image */}
-                    <div className="h-32 w-24 flex-shrink-0 rounded-lg border border-gray-200 bg-gray-50"></div>
+                    <img
+                        src={categoryImage.src}
+                        alt={book.category}
+                        className="h-32 w-24 flex-shrink-0 rounded-lg object-cover"
+                    />
 
                     <div className="flex w-full flex-col gap-6">
                         <div>
