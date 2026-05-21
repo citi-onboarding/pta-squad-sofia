@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { 
         createBookRepository, 
         searchBooksRepository,
-        deleteBookRepository 
+        deleteBookRepository,
+        getBookByIdRepository 
       } from "../repositories/LivroRepository";
 import { Categoria } from "@prisma/client";
 
@@ -124,7 +125,6 @@ export const searchBooks = async (req: Request, res: Response) => {
   }
 }
 
-
 export const deleteBook = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
@@ -136,5 +136,61 @@ export const deleteBook = async (req: Request, res: Response) => {
     return res.status(200).json({ message: "Livro deletado com sucesso" });
   } catch(error) {
     return res.status(500).json({ message: "Livro não encontrado" });
+  }
+}
+
+export const getBookById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    if (!id) {
+      return res.status(400).json({ message: "ID inválido" });
+    }
+
+    const book = await getBookByIdRepository(id);
+
+    if (!book) {
+      return res.status(404).json({ message: "Livro não encontrado" });
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const formattedLoans = book.emprestimo.map((loan: any) => {
+      let calculatedStatus = "Em andamento";
+
+      const dueDate = new Date(loan.dataPrevisao);
+      dueDate.setHours(0, 0, 0, 0);
+
+      if (loan.dataPrevistaDevolucao) {
+        calculatedStatus = "Devolvido";
+      } else if (today > dueDate) {
+        calculatedStatus = "Atrasado";
+      }
+
+      return {
+        id: loan.id,
+        name: loan.nomeCliente,
+        email: loan.emailCliente,
+        rentalDate: new Date(loan.dataLocacao).toLocaleDateString("pt-BR"),
+        dueDate: dueDate.toLocaleDateString("pt-BR"),
+        status: calculatedStatus
+      }
+    })
+
+    return res.status(200).json({
+      title: book.titulo,
+      author: book.autor,
+      isbn: book.isbn,
+      publisher: book.editora,
+      category: book.categoria,
+      year: book.ano,
+      totalQuantity: book.quantidadeTotal,
+      availableQuantity: book.quantidadeDisponivel,
+      loans: formattedLoans
+    })
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erro ao buscar detalhes do livro"});
   }
 }

@@ -38,9 +38,17 @@ export const searchBooksRepository = async (filters: any) => {
   });
 }
 
-
 export const deleteBookRepository = async (bookId: string) => {
   return await prisma.livro.delete({
     where: { id: bookId }
   });
+}
+
+export const getBookByIdRepository = async (bookId: string) => {
+  return await prisma.livro.findUnique({
+    where: { id: bookId },
+    include: {
+      emprestimo: true
+    }
+  })
 }
