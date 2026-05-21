@@ -8,11 +8,10 @@ const routes = express.Router();
 routes.post("/emprestimos", emprestimoController.create);
 routes.get("/emprestimos", emprestimoController.get);
 
-const routes = express.Router();
 routes.post("/livros", createBook);
 routes.get("/livros", searchBooks);
 routes.delete("/livros/:id", deleteBook);
 
 routes.get("/dashboard", dashboardController.get);
-
+routes.patch("/emprestimos/:id/status", emprestimoController.updateStatus);
 export default routes;
