@@ -5,6 +5,8 @@ import { Header } from "@/components/Header";
 import BookDetails from "@/components/BookDetails";
 import { RecentLoansTable } from "@/components/RecentLoansTable/recentLoansTable";
 import { CategoryChart } from "@/components/CategoryChart";
+import { MetricCard } from "@/components/MetricCard";
+import { BookOpen, Clock, AlertCircle } from "lucide-react"; 
 
 const mockBookData = {
   title: "O Senhor dos Anéis",
@@ -61,7 +63,7 @@ const mockCategoryData = [
 ];
 
 export default function Home() {
-  const [isOpen, setIsOpen] = useState(false); // definido como false para abrir a dashboard limpa
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center">
@@ -71,8 +73,37 @@ export default function Home() {
 
       <BookDetails isOpen={isOpen} onClose={() => setIsOpen(false)} book={mockBookData} />
 
-      <div className="w-full max-w-[1000px] mt-12 px-4 flex flex-col gap-8 mb-12">
+      <div className="w-full max-w-[1000px] mt-8 px-4 flex flex-col gap-8 mb-12">
         
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-400">Visão geral da biblioteca</p>
+        </div>
+
+        <div className="flex flex-wrap gap-4 w-full">
+          <MetricCard 
+            title="Total de Livros" 
+            value="1.245" 
+            icon={BookOpen} 
+            iconColorClass="text-[#00C389]" 
+            iconBgColorClass="bg-[#00C389]/10"
+          />
+          <MetricCard 
+            title="Empréstimos Ativos" 
+            value="87" 
+            icon={Clock} 
+            iconColorClass="text-[#00C389]" 
+            iconBgColorClass="bg-[#00C389]/10"
+          />
+          <MetricCard 
+            title="Livros Atrasados" 
+            value="12" 
+            icon={AlertCircle} 
+            iconColorClass="text-[#FF5B5B]" 
+            iconBgColorClass="bg-[#FF5B5B]/10"
+          />
+        </div>
+
         <CategoryChart data={mockCategoryData} />
 
         <RecentLoansTable loans={mockLoans} />
