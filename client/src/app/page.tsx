@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Header } from "@/components/Header";
 import BookDetails from "@/components/BookDetails";
 import { RecentLoansTable } from "@/components/RecentLoansTable/recentLoansTable";
+import { CategoryChart } from "@/components/CategoryChart";
 
 const mockBookData = {
   title: "O Senhor dos Anéis",
@@ -51,8 +52,16 @@ const mockLoans = [
   },
 ];
 
+const mockCategoryData = [
+  { category: "Romance", quantity: 245 },
+  { category: "Tecnologia", quantity: 318 },
+  { category: "História", quantity: 190 },
+  { category: "Ciências", quantity: 265 },
+  { category: "Infantil", quantity: 230 },
+];
+
 export default function Home() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false); // definido como false para abrir a dashboard limpa
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center">
@@ -62,7 +71,10 @@ export default function Home() {
 
       <BookDetails isOpen={isOpen} onClose={() => setIsOpen(false)} book={mockBookData} />
 
-      <div className="w-full max-w-[1000px] mt-12 px-4 mb-12">
+      <div className="w-full max-w-[1000px] mt-12 px-4 flex flex-col gap-8 mb-12">
+        
+        <CategoryChart data={mockCategoryData} />
+
         <RecentLoansTable loans={mockLoans} />
       </div>
     </main>
