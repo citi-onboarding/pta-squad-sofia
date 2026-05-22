@@ -131,6 +131,7 @@ export default function BookRegister() {
           <div className="flex justify-end gap-4 border-t">
             <button
               type="button"
+              onClick={() => router.back()}
               className="mt-6 h-12 w-32 rounded-lg border-[2px] border-[#00C389] transition-all duration-200 hover:bg-[rgba(0,195,137,0.08)] hover:shadow-md active:scale-95 active:bg-[rgba(0,195,137,0.15)]"
             >
               <span className="font-medium text-[#00C389]">
