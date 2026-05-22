@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Header } from "@/components/Header";
-import BookCard from "@/components/bookcard";
+import BookCard from "@/components/BookCard";
 import { Search } from 'lucide-react';
 
 const MOCK_BOOKS = [
