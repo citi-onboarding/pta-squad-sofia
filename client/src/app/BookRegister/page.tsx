@@ -6,6 +6,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import BookFormField from "@/components/BookRegisterComponents/BookFormField";
 import BookCategorySelector from "@/components/BookRegisterComponents/BookCategorySelector";
+import { useRouter } from "next/navigation";
 
 const schema = yup.object({
   title: yup.string().required("*Este é um campo obrigatório"),
@@ -39,6 +40,8 @@ const schema = yup.object({
 type FormData = yup.InferType<typeof schema>;
 
 export default function BookRegister() {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -51,8 +54,42 @@ export default function BookRegister() {
 
   const selectedCategory = watch("category");
 
-  function onSubmit(data: FormData) {
-    console.log(data);
+  
+  async function onSubmit(data: FormData) {
+    const formatedCategory = data.category
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase();
+
+    const newBook = {
+      title: data.title,
+      isbn: data.isbn,
+      year: data.year,
+      author: data.author,
+      publisher: data.publisher,
+      totalQuantity: data.quantity,
+      category: formatedCategory,
+    }
+
+    try {
+      const response = await fetch("http://localhost:3001/livros", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newBook),
+      })
+
+      if (response.status === 201) {
+        router.push("/BookScreen");
+      } else {
+        const errorData = await response.json();
+        alert(`Erro ao salvar: ${errorData.message || "Verifique os dados"}`);
+      }
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      alert("Erro de conexão. Verifique se o Back-end está rodando na porta 3001.");
+    }
   }
 
   return (
