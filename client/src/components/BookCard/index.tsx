@@ -1,5 +1,6 @@
 "use client";
 import { Eye, Trash2, Bookmark } from 'lucide-react';
+import { Book } from "@/types/Book";
 
 import imgTecnologia from '../../assets/images/Tecnologia.png';
 import imgInfantil from '../../assets/images/Infantil.png';
@@ -7,14 +8,16 @@ import imgRomance from '../../assets/images/Romance.png';
 import imgHistoria from '../../assets/images/Historia.png';
 import imgCiencias from '../../assets/images/Ciencias.png';
 
+
 interface BookCardProps {
-  title: string;
-  author: string;
-  category: string;
-  stock: number;
+  book: Book;
+  onClick: () => void;
+  onDelete: (id: string) => void;
+  onLoan: () => void;
 }
 
-export default function BookCard({ title, author, category, stock }: BookCardProps) {
+export default function BookCard({ book, onClick, onDelete, onLoan }: BookCardProps) {
+  const { title, category, author, availableQuantity } = book;
 
   let imageSource;
   if (category === "Tecnologia") {
@@ -46,32 +49,36 @@ export default function BookCard({ title, author, category, stock }: BookCardPro
         <p className="text-[rgba(113,113,130,1)] text-base leading-6">{author}</p>
         <p className="text-[rgba(0,195,137,1)] text-sm font-bold leading-5">{category}</p>
         <p className="text-[rgba(30,30,30,1)] text-sm leading-5">
-          <span className="font-medium">Disponível: </span> {stock} unidade(s)
+          <span className="font-medium">Disponível: </span> {availableQuantity} unidade(s)
         </p>
       </div>
 
         {/* Botões */}
       <div className="grid grid-cols-[115px_147px_66px] gap-2">
         <button 
-          className="flex items-center justify-center gap-[7px] w-28.75 h-[47.33px] bg-transparent border-[1.67px] border-solid border-[rgba(0,195,137,1)] rounded-lg cursor-pointer transition-all duration-200 hover:bg-[rgba(0,195,137,0.08)] hover:shadow-md active:scale-95 active:bg-[rgba(0,195,137,0.15)]">  
+          onClick={onClick}
+          className="flex items-center justify-center gap-[7px] w-28.75 h-[47.33px] bg-transparent border-[1.67px] border-solid border-[rgba(0,195,137,1)] rounded-lg cursor-pointer transition-all duration-200 hover:bg-[rgba(0,195,137,0.08)] hover:shadow-md active:scale-95 active:bg-[rgba(0,195,137,0.15)]"> 
           <Eye  size={18} className="text-[rgba(0,195,137,1)]" />
           <span className="font-medium text-[rgba(0,195,137,1)] text-base leading-6">Ver</span>
         </button>
-        <button 
-          disabled={stock === 0}
+        <button
+          onClick={onLoan}
+          disabled={availableQuantity === 0}
           className={`flex items-center gap-[6px] justify-center w-36.75 h-[47.33px] rounded-lg 
             transition-all duration-200 active:scale-95
-            ${stock === 0 
+            ${availableQuantity === 0 
               ? "bg-gray-400 cursor-not-allowed" 
               : "bg-[rgba(0,195,137,1)] cursor-pointer hover:bg-[rgba(0,175,127,1)] hover:shadow-md active:brightness-90"
             }`}
         >
           <Bookmark size={18} className="text-white" />
           <span className="font-medium text-white text-base leading-6">
-            {stock === 0 ? "Esgotado" : "Emprestar"}
+            {availableQuantity === 0 ? "Esgotado" : "Emprestar"}
           </span>
         </button>
-        <button className="flex items-center justify-center  w-16.5 h-[47.33px] bg-[rgba(239,68,68,1)] rounded-lg cursor-pointer transition-all duration-200 hover:shadow-lg active:scale-90 active:brightness-90">
+        <button 
+          onClick={() => onDelete(book.id)}
+          className="flex items-center justify-center  w-16.5 h-[47.33px] bg-[rgba(239,68,68,1)] rounded-lg cursor-pointer transition-all duration-200 hover:shadow-lg active:scale-90 active:brightness-90">
           <Trash2 size={18} className="text-[rgba(255,255,255,1)]" />
         </button>
       </div>
