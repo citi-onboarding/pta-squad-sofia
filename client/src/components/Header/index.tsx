@@ -38,7 +38,7 @@ export function Header() {
               <span className="font-medium text-lg">Dashboard</span>
             </a>
             <a href="#" className="flex items-center gap-2 hover:text-[#58c08f] transition-colors group"
-              onClick={() => router.push("/BookScreen")}
+              onClick={() => router.push("/")}
             >
               <BookText size={20} className="group-hover:text-[#58c08f]" />
               <span className="font-medium text-lg">Livros</span>

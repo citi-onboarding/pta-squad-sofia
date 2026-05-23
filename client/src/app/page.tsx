@@ -1,113 +1,139 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
+import { Book } from "@/types/Book"
+import { Search } from 'lucide-react';
+
+import BookCard from "@/components/BookCard";
 import BookDetails from "@/components/BookDetails";
-import { RecentLoansTable } from "@/components/RecentLoansTable/recentLoansTable";
-import { CategoryChart } from "@/components/CategoryChart";
-import { MetricCard } from "@/components/MetricCard";
-import { BookOpen, Clock, AlertCircle } from "lucide-react"; 
+import LoanModal from "@/components/LoanModal";
 
-const mockBookData = {
-  title: "O Senhor dos Anéis",
-  author: "J.R.R. Tolkien",
-  isbn: "978-8533613379",
-  publisher: "Martins Fontes",
-  category: "Romance",
-  year: 2001,
-  totalQuantity: 5,
-  availableQuantity: 3,
-};
-
-const mockLoans = [
-  {
-    id: "1",
-    bookTitle: "Clean Code",
-    clientName: "João Silva",
-    rentalDate: "2026-04-20T00:00:00.000Z",
-    returnDate: "2026-04-27T00:00:00.000Z",
-    status: "EM_ANDAMENTO" as const,
-  },
-  {
-    id: "2",
-    bookTitle: "O Pequeno Príncipe",
-    clientName: "Maria Santos",
-    rentalDate: "2026-04-18T00:00:00.000Z",
-    returnDate: "2026-04-25T00:00:00.000Z",
-    status: "ATRASADO" as const,
-  },
-  {
-    id: "3",
-    bookTitle: "Dom Casmurro",
-    clientName: "Pedro Costa",
-    rentalDate: "2026-04-15T00:00:00.000Z",
-    returnDate: "2026-04-22T00:00:00.000Z",
-    status: "DEVOLVIDO" as const,
-  },
-  {
-    id: "4",
-    bookTitle: "JavaScript: The Good Parts",
-    clientName: "Ana Oliveira",
-    rentalDate: "2026-04-22T00:00:00.000Z",
-    returnDate: "2026-04-29T00:00:00.000Z",
-    status: "EM_ANDAMENTO" as const,
-  },
-];
-
-const mockCategoryData = [
-  { category: "Romance", quantity: 245 },
-  { category: "Tecnologia", quantity: 318 },
-  { category: "História", quantity: 190 },
-  { category: "Ciências", quantity: 265 },
-  { category: "Infantil", quantity: 230 },
-];
 
 export default function Home() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isLoanOpen, setIsLoanOpen] = useState(false);
+
+  const filteredBooks = books?.filter((book) => {
+    const matchesSearch =
+      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      book.author.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory ? book.category === selectedCategory : true;
+    
+    return matchesSearch && matchesCategory;
+  }) || [];
+  useEffect(() => {
+      async function fetchBooks() {
+        try {
+          const response = await fetch("http://localhost:3001/livros"); 
+          const data = await response.json();
+          setBooks(Array.isArray(data) ? data : data.livros ?? []);
+        } catch (error) {
+          console.error("Erro ao buscar livros:", error);
+        } 
+      }
+      fetchBooks();
+    }, []);
+
+  async function deleteBook(id: string) {
+    try {
+      console.log("ID que estou deletando:", id);
+      const response = await fetch(`http://localhost:3001/livros/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setBooks((prevBooks) => prevBooks.filter((book) => book.id !== id));
+      } else {
+        console.error("Erro ao deletar livro:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Erro ao deletar livro:", error);
+    }
+  }
+
 
   return (
-    <main className="min-h-screen bg-gray-50 flex flex-col items-center">
-      <div className="w-full">
-        <Header />
-      </div>
+    <main className="min-h-screen bg-gray-50 pb-12">
+      <Header />
 
-      <BookDetails isOpen={isOpen} onClose={() => setIsOpen(false)} book={mockBookData} />
-
-      <div className="w-full max-w-[1000px] mt-8 px-4 flex flex-col gap-8 mb-12">
+      <div className="max-w-[1280px] mx-auto px-6 pt-8">
         
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-400">Visão geral da biblioteca</p>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Livros</h1>
+          <p className="text-sm text-gray-500">Gerencie o acervo da biblioteca</p>
         </div>
 
-        <div className="flex flex-wrap gap-4 w-full">
-          <MetricCard 
-            title="Total de Livros" 
-            value="1.245" 
-            icon={BookOpen} 
-            iconColorClass="text-[#00C389]" 
-            iconBgColorClass="bg-[#00C389]/10"
-          />
-          <MetricCard 
-            title="Empréstimos Ativos" 
-            value="87" 
-            icon={Clock} 
-            iconColorClass="text-[#00C389]" 
-            iconBgColorClass="bg-[#00C389]/10"
-          />
-          <MetricCard 
-            title="Livros Atrasados" 
-            value="12" 
-            icon={AlertCircle} 
-            iconColorClass="text-[#FF5B5B]" 
-            iconBgColorClass="bg-[#FF5B5B]/10"
-          />
+        {/* Filter bar */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <div className="relative flex-1">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <Search size={20}/>
+            </span>
+            <input
+              type="text"
+              placeholder="Buscar por título ou autor..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#00C389] focus:ring-1 focus:ring-[#00C389] shadow-sm transition-all"
+            />
+          </div>
+
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full sm:w-56 px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:border-[#00C389] focus:ring-1 focus:ring-[#00C389] shadow-sm transition-all"
+          >
+            <option value="">Todas as categorias</option>
+            <option value="Tecnologia">Tecnologia</option>
+            <option value="Infantil">Infantil</option>
+            <option value="Romance">Romance</option>
+            <option value="História">História</option>
+            <option value="Ciências">Ciências</option>
+          </select>
         </div>
 
-        <CategoryChart data={mockCategoryData} />
-
-        <RecentLoansTable loans={mockLoans} />
+        {/* Grid Cards*/}
+        {filteredBooks.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+            {filteredBooks.map((book) => (
+              <BookCard 
+                key={book.id}
+                book={book}
+                onClick={() => {
+                  setIsDetailsOpen(true);
+                  setSelectedBook(book);
+                }}
+                onDelete={deleteBook}
+                onLoan={() => {
+                  setIsLoanOpen(true);
+                  setSelectedBook(book);
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Nenhum livro encontrado com os filtros aplicados.</p>
+          </div>
+        )}
       </div>
+
+      <BookDetails 
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        book={selectedBook}
+      />
+
+      <LoanModal 
+        isOpen={isLoanOpen}
+        onClose={() => setIsLoanOpen(false)}
+        
+      />
     </main>
   );
 }
