@@ -2,6 +2,7 @@
 
 import HistoryCard from "../HistoryCard";
 import { X } from "lucide-react";
+import { Book } from "@/types/Book";
 
 import imgTecnologia from '../../assets/images/Tecnologia.png';
 import imgInfantil from '../../assets/images/Infantil.png';
@@ -17,16 +18,6 @@ const categoryImages: Record<string, { src: string }> = {
     "Ciências": imgCiencias,
 };
 
-interface Book {
-    title: string;
-    author: string;
-    isbn: string;
-    publisher: string;
-    category: string;
-    year: number;
-    totalQuantity: number;
-    availableQuantity: number;
-}
 
 interface BookDetailsProps {
     isOpen: boolean;
