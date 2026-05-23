@@ -18,6 +18,11 @@ interface LoanFormData {
   devolutionDate: Date;
 }
 
+interface LoanProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
 const mockBook: BookProps = {
   title: "O Pequeno Príncipe",
   author: "Antoine de Saint-Exupéry",
@@ -46,7 +51,9 @@ const schema = yup.object({
 }).required();
 
 
-export default function LoanModal() {
+export default function LoanModal({ isOpen, onClose }: LoanProps) {
+  if (!isOpen) return null;
+
   const { register, handleSubmit, formState: { errors } } = useForm<LoanFormData>({
     defaultValues: {
       name: "",
@@ -67,7 +74,9 @@ export default function LoanModal() {
       {/* Cabeçalho do formulário */}
       <header className="flex items-center p-6 gap-[136px] border-b">
         <h1 className="font-medium text-xl leading-7.5 whitespace-nowrap">Realizar Empréstimo</h1>
-        <button type="button">
+        <button 
+        type="button"
+        onClick={onClose}>
           <X size={24} />
         </button>
       </header>
@@ -149,6 +158,7 @@ export default function LoanModal() {
       {/* Rodapé do formulário */}
       <footer className="flex p-6 gap-4 font-medium text-base leading-6">
         <button 
+          onClick={onClose}
           type="button" 
           className="w-28 h-12 border-[1.67px] border-[rgba(0,195,137,1)] rounded-lg text-[rgba(0,195,137,1)] cursor-pointer transition-all duration-200 hover:bg-[rgba(0,195,137,0.08)] hover:shadow-md active:scale-95 active:bg-[rgba(0,195,137,0.15)]"
         >
