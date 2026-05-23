@@ -118,8 +118,19 @@ export const searchBooks = async (req: Request, res: Response) => {
 
 
     const books = await searchBooksRepository(filters);
+    const formattedBooks = books.map((book: any) => ({
+      id: book.id,
+      title: book.titulo,
+      author: book.autor,
+      isbn: book.isbn,
+      publisher: book.editora,
+      category: book.categoria,
+      year: book.ano,
+      totalQuantity: book.quantidadeTotal,
+      availableQuantity: book.quantidadeDisponivel,
+    }));
 
-    return res.status(200).json(books);
+    return res.status(200).json(formattedBooks);
   } catch (error) {
     return res.status(500).json({ message: "Erro ao buscar livros" });
   }
