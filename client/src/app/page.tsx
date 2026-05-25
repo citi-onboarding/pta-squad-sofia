@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Header } from "@/components/Header";
 import { Book } from "@/types/Book"
 import { Search } from 'lucide-react';
 
@@ -59,8 +58,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 pb-12">
-      <Header />
-
       <div className="max-w-[1280px] mx-auto px-6 pt-8">
         
         <div className="mb-6">

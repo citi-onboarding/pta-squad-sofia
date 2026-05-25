@@ -57,8 +57,6 @@ export default function BookRegister() {
 
   return (
     <>
-      <Header />
-
       <main className="flex flex-col items-center gap-8">
         <div className="mt-8 w-[836px]">
           <h1 className="text-2xl font-medium leading-9">
