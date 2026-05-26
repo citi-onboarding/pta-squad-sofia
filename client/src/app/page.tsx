@@ -46,19 +46,21 @@ export default function Home() {
       });
 
       if (response.ok) {
-        setBooks((prevBooks) =>
-          prevBooks.map((book) =>
-            book.id === id
+        setBooks((prevBooks) => {
+          const book = prevBooks.find((b) => b.id === id);
+          if (!book || (book.totalQuantity ?? 1) <= 1) {
+            return prevBooks.filter((b) => b.id !== id);
+          }
+          return prevBooks.map((b) =>
+            b.id === id
               ? {
-                  ...book,
-                  availableQuantity: Math.max(
-                    (book.availableQuantity ?? 0) - 1,
-                    0
-                  ),
+                  ...b,
+                  totalQuantity: (b.totalQuantity ?? 1) - 1,
+                  availableQuantity: Math.max((b.availableQuantity ?? 0) - 1, 0),
                 }
-              : book
-          )
-        );
+              : b
+          );
+        });
       }
     } catch (error) {
       console.error(error);
