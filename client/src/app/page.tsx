@@ -19,12 +19,13 @@ export default function Home() {
 
   const filteredBooks = books?.filter((book) => {
     const matchesSearch =
-      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchQuery.toLowerCase());
+      (book.title ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (book.author ?? "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory ? book.category === selectedCategory : true;
     
     return matchesSearch && matchesCategory;
   }) || [];
+  
   useEffect(() => {
       async function fetchBooks() {
         try {
@@ -38,20 +39,29 @@ export default function Home() {
       fetchBooks();
     }, []);
 
-  async function deleteBook(id: string) {
+  async function decrementBook(id: string) {
     try {
-      console.log("ID que estou deletando:", id);
       const response = await fetch(`http://localhost:3001/livros/${id}`, {
-        method: "DELETE",
+        method: "PATCH",
       });
 
       if (response.ok) {
-        setBooks((prevBooks) => prevBooks.filter((book) => book.id !== id));
-      } else {
-        console.error("Erro ao deletar livro:", response.statusText);
+        setBooks((prevBooks) =>
+          prevBooks.map((book) =>
+            book.id === id
+              ? {
+                  ...book,
+                  availableQuantity: Math.max(
+                    (book.availableQuantity ?? 0) - 1,
+                    0
+                  ),
+                }
+              : book
+          )
+        );
       }
     } catch (error) {
-      console.error("Erro ao deletar livro:", error);
+      console.error(error);
     }
   }
 
@@ -105,7 +115,7 @@ export default function Home() {
                   setIsDetailsOpen(true);
                   setSelectedBook(book);
                 }}
-                onDelete={deleteBook}
+                onDecrement={decrementBook}
                 onLoan={() => {
                   setIsLoanOpen(true);
                   setSelectedBook(book);
@@ -129,7 +139,6 @@ export default function Home() {
       <LoanModal 
         isOpen={isLoanOpen}
         onClose={() => setIsLoanOpen(false)}
-        
       />
     </main>
   );

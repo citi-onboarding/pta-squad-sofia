@@ -12,23 +12,28 @@ import imgCiencias from '../../assets/images/Ciencias.png';
 interface BookCardProps {
   book: Book;
   onClick: () => void;
-  onDelete: (id: string) => void;
+  onDecrement: (id: string) => void;
   onLoan: () => void;
 }
 
-export default function BookCard({ book, onClick, onDelete, onLoan }: BookCardProps) {
-  const { title, category, author, availableQuantity } = book;
+export default function BookCard({ book, onClick, onDecrement, onLoan }: BookCardProps) {
+  const title = book.title || (book as any).titulo;
+  const author = book.author || (book as any).autor;
+  const category = book.category || (book as any).categoria || "";
+  const availableQuantity = book.availableQuantity ?? (book as any).quantidadeDisponivel ?? 0;
+  
 
+  const normalizedCategory = category.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   let imageSource;
-  if (category === "Tecnologia") {
+  if (normalizedCategory === "tecnologia") {
       imageSource = imgTecnologia;
-  } else if (category === "Infantil") {
+  } else if (normalizedCategory === "infantil") {
     imageSource = imgInfantil;
-  } else if (category === "Romance") {
+  } else if (normalizedCategory === "romance") {
     imageSource = imgRomance;
-  } else if (category === "História") {
+  } else if (normalizedCategory === "historia") {
     imageSource = imgHistoria;
-  } else if (category === "Ciências") {
+  } else if (normalizedCategory === "ciencias") {
     imageSource = imgCiencias;
   } else {
     imageSource = imgTecnologia;
@@ -77,7 +82,7 @@ export default function BookCard({ book, onClick, onDelete, onLoan }: BookCardPr
           </span>
         </button>
         <button 
-          onClick={() => onDelete(book.id)}
+          onClick={() => onDecrement(book.id)}
           className="flex items-center justify-center  w-16.5 h-[47.33px] bg-[rgba(239,68,68,1)] rounded-lg cursor-pointer transition-all duration-200 hover:shadow-lg active:scale-90 active:brightness-90">
           <Trash2 size={18} className="text-[rgba(255,255,255,1)]" />
         </button>
