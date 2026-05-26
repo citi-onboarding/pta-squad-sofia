@@ -1,8 +1,9 @@
 "use client";
-
+import { useEffect, useState } from "react";
 import HistoryCard from "../HistoryCard";
 import { X } from "lucide-react";
 import { Book } from "@/types/Book";
+import { Loan } from "@/types/Loan"
 
 import imgTecnologia from '../../assets/images/Tecnologia.png';
 import imgInfantil from '../../assets/images/Infantil.png';
@@ -26,7 +27,26 @@ interface BookDetailsProps {
 }
 
 export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) {
+    const [ loans, setLoans ] = useState<Loan[]>([]);
+
+    useEffect(() => {
+        async function fetchLoans() {
+            try {
+            const response = await fetch("http://localhost:3001/emprestimos"); 
+            const data = await response.json();
+            setLoans(Array.isArray(data) ? data : data.emprestimos ?? []);
+            } catch (error) {
+            console.error("Erro ao buscar empréstimos:", error);
+            } 
+        }
+        fetchLoans();
+    }, []);
+
     if (!isOpen || !book) return null;
+
+    const filteredLoans = loans.filter(
+        (loan) => loan.bookId === book.id
+    );
 
     const categoryImage = categoryImages[book.category] ?? imgTecnologia;
 
@@ -90,27 +110,20 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
                 {/* History section */}
                 <section className="flex flex-col gap-4">
                     <h3 className="text-lg font-semibold text-gray-900">Histórico de Empréstimos</h3>
-                    
-                    <div className="flex max-h-[300px] flex-col gap-3 overflow-y-auto pr-2">
-                        <HistoryCard 
-                        name="João Silva"
-                        email="joao@email.com"
-                        rentalDate="20/05/2026"
-                        dueDate="27/05/2026"
-                        />
-                        <HistoryCard 
-                        name="Maria Santos"
-                        email="maria@email.com"
-                        rentalDate="10/04/2026"
-                        dueDate="17/04/2026"
-                        />
-                        <HistoryCard
-                        name="Pedro Costa"
-                        email="pedro@email.com"
-                        rentalDate="05/04/2026"
-                        dueDate="12/04/2026"
-                        />
-                    </div>
+                    {filteredLoans.length > 0 ? (
+                        <div className="flex max-h-[300px] flex-col gap-3 overflow-y-auto pr-2">
+                            {filteredLoans.map((loan: Loan) => {
+                                return (
+                                    <HistoryCard
+                                        key={loan.id}
+                                        loan={loan}
+                                    />
+                                );
+                            })}
+                        </div>
+                    ) : (   
+                        <p className="text-gray-500">Nenhum histórico de empréstimos encontrado.</p>
+                    )}
                 </section>
             </div>
         </div>
