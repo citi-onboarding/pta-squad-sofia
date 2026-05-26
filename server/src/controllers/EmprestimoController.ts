@@ -48,7 +48,22 @@ class EmprestimoController {
         include: { livro: true }
       });
 
-      return res.status(200).json(emprestimos);
+      const formattedLoans = emprestimos.map((loan) => ({
+        id: loan.id,
+        customerName: loan.nomeCliente,
+        customerEmail: loan.emailCliente,
+        rentalDate: loan.dataLocacao,
+        dueDate: loan.dataPrevistaDevolucao,
+        status: loan.status,
+        bookId: loan.livroId,
+        book: {
+          id: loan.livro.id,
+          title: loan.livro.titulo,
+          author: loan.livro.autor,
+        }
+      }));
+
+      return res.status(200).json(formattedLoans);
     } catch (error) {
       return res.status(500).json({ error: "Erro ao buscar empréstimos." });
     }
