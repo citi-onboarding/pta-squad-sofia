@@ -1,18 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Mail } from "lucide-react";
+import { Loan } from "@/types/Loan";
 
 interface HistoryCardProps {
-    name: string;
-    email: string;
-    rentalDate: string;
-    dueDate: string;
+    loan: Loan;
+    onReturn: (loanId: string) => void;
 }
 
-export default function HistoryCard({name, email, rentalDate, dueDate}: HistoryCardProps) {
+export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
+    const [isReturned, setIsReturned] = useState(loan.status === "DEVOLVIDO");
 
-    const [isReturned, setIsReturned] = useState(false);
+    async function markAsReturned() {
+        try {
+            const response = await fetch(`http://localhost:3001/emprestimos/${loan.id}/status`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ status: "DEVOLVIDO" }),
+            });
+
+            if (response.ok) {
+                setIsReturned(true);
+                onReturn(loan.id);
+            } else {
+                console.error("Erro ao marcar como devolvido:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Erro ao marcar como devolvido:", error);
+        }
+    }
+
 
     const statusStyles = {
         "Em andamento": "border-[#FFDF20] bg-[#FEF9C2] text-[#A65F00]",
@@ -20,19 +40,18 @@ export default function HistoryCard({name, email, rentalDate, dueDate}: HistoryC
         "Devolvido": "border-[#00C3894D] bg-[#00C38933] text-[#00C389]"
     };
 
-    const [day, month, year] = dueDate.split("/");
-
-    const dueDateObject = new Date(Number(year), Number(month) - 1, Number(day));
+    const rentalDate = new Date(loan.rentalDate);
+    const dueDate= new Date(loan.dueDate);
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0); 
+    today.setHours(0, 0, 0, 0);
 
     let calculatedStatus: "Em andamento" | "Atrasado" | "Devolvido" = "Em andamento";
 
     if (isReturned) {
         calculatedStatus = "Devolvido";
     }
-    else if (today > dueDateObject) {
+    else if (today > dueDate) {
         calculatedStatus = "Atrasado";
     }
 
@@ -43,7 +62,7 @@ export default function HistoryCard({name, email, rentalDate, dueDate}: HistoryC
                 {/* Header */}
                 <header className="flex items-center gap-3">
                     <h2 className="text-lg font-medium text-gray-900">
-                        {name}
+                        {loan.customerName}
                     </h2>
                     <span className={`
                         rounded-full border px-3 py-1 text-xs font-medium
@@ -53,18 +72,18 @@ export default function HistoryCard({name, email, rentalDate, dueDate}: HistoryC
                     </span>
                 </header>
                 <p className="text-sm text-gray-500">
-                    {email}
+                    {loan.customerEmail}
                 </p>
                 <footer className="flex items-center gap-4 text-sm">
 
                     <div>
                         <span>Locação: </span>
-                        <strong>{rentalDate}</strong>
+                        <strong>{rentalDate.toLocaleDateString("pt-BR")}</strong>
                     </div>
 
                     <div>
                         <span>Previsão: </span>
-                        <strong>{dueDate}</strong>
+                        <strong>{dueDate.toLocaleDateString("pt-BR")}</strong>
                     </div>
                 </footer>
             </div>
@@ -80,7 +99,7 @@ export default function HistoryCard({name, email, rentalDate, dueDate}: HistoryC
 
                 {!isReturned && (
                     <button
-                        onClick={() => setIsReturned(true)}
+                        onClick={markAsReturned}
                         className="flex items-center gap-2 rounded-lg bg-[#00C389] px-5 py-3 text-white hover:opacity-90 transition-transform duration-100 active:scale-95"
                     >
                         <Check size={18} />

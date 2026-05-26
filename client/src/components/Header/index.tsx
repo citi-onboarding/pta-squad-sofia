@@ -2,12 +2,11 @@
 import React, { useState } from 'react';
 import Image from 'next/image'; 
 import { LayoutDashboard, BookText, Plus, Menu, X } from 'lucide-react';
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export function Header() {
   // controlar o menu no mobile
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const router = useRouter();
 
   return (
     <header className="w-full bg-white border-b border-gray-200 relative z-50">
@@ -29,28 +28,28 @@ export function Header() {
 
         <nav className="hidden md:flex items-center gap-12">
           <div className="flex items-center gap-8 text-gray-700">
-            <a 
-              href="#" 
+            <Link 
+              href="/Dashboard"
               className="flex items-center gap-2 hover:text-[#58c08f] transition-colors group"
-              onClick={() => router.push("/")}
-            >
+             >
               <LayoutDashboard size={20} className="group-hover:text-[#58c08f]" />
               <span className="font-medium text-lg">Dashboard</span>
-            </a>
-            <a href="#" className="flex items-center gap-2 hover:text-[#58c08f] transition-colors group"
-              onClick={() => router.push("/BookScreen")}
+            </Link>
+            <Link 
+              href="/"
+              className="flex items-center gap-2 hover:text-[#58c08f] transition-colors group"
             >
               <BookText size={20} className="group-hover:text-[#58c08f]" />
               <span className="font-medium text-lg">Livros</span>
-            </a>
+            </Link>
           </div>
-          <button 
+          <Link
+            href="/BookRegister"
             className="bg-[#58c08f] hover:bg-[#4ab07f] text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all shadow-sm active:scale-95"
-            onClick={() => router.push("/BookRegister")}
           >
-            <Plus size={20} />
-            <span className="font-semibold text-lg">Novo Livro</span>
-          </button>
+              <Plus size={20} />
+              <span className="font-semibold text-lg">Novo Livro</span>
+          </Link>
         </nav>
 
         <button 

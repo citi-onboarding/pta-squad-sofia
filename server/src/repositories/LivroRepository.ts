@@ -39,8 +39,30 @@ export const searchBooksRepository = async (filters: any) => {
 }
 
 export const deleteBookRepository = async (bookId: string) => {
-  return await prisma.livro.delete({
-    where: { id: bookId }
+  return await prisma.$transaction(async (tx) => {
+    const book = await tx.livro.findUnique({
+      where: { id: bookId },
+      select: { quantidadeTotal: true, quantidadeDisponivel: true }
+    });
+
+    if (!book) throw new Error("Livro não encontrado");
+
+    if (book.quantidadeTotal > 1) {
+      return await tx.livro.update({
+        where: { id: bookId },
+        data: {
+          quantidadeTotal: { decrement: 1 },
+          quantidadeDisponivel: { decrement: 1 }
+        }
+      });
+    }
+
+    await tx.emprestimo.deleteMany({
+      where: { livroId: bookId }
+    });
+    return await tx.livro.delete({
+      where: { id: bookId }
+    });
   });
 }
 

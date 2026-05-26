@@ -1,7 +1,9 @@
 "use client";
-
+import { useEffect, useState } from "react";
 import HistoryCard from "../HistoryCard";
 import { X } from "lucide-react";
+import { Book } from "@/types/Book";
+import { Loan } from "@/types/Loan"
 
 import imgTecnologia from '../../assets/images/Tecnologia.png';
 import imgInfantil from '../../assets/images/Infantil.png';
@@ -10,23 +12,13 @@ import imgHistoria from '../../assets/images/Historia.png';
 import imgCiencias from '../../assets/images/Ciencias.png';
 
 const categoryImages: Record<string, { src: string }> = {
-    "Tecnologia": imgTecnologia,
-    "Infantil": imgInfantil,
-    "Romance": imgRomance,
-    "História": imgHistoria,
-    "Ciências": imgCiencias,
+    "TECNOLOGIA": imgTecnologia,
+    "INFANTIL": imgInfantil,
+    "ROMANCE": imgRomance,
+    "HISTÓRIA": imgHistoria,
+    "CIÊNCIAS": imgCiencias,
 };
 
-interface Book {
-    title: string;
-    author: string;
-    isbn: string;
-    publisher: string;
-    category: string;
-    year: number;
-    totalQuantity: number;
-    availableQuantity: number;
-}
 
 interface BookDetailsProps {
     isOpen: boolean;
@@ -35,9 +27,84 @@ interface BookDetailsProps {
 }
 
 export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) {
-    if (!isOpen || !book) return null;
+    const [ loans, setLoans ] = useState<Loan[]>([]);
+    const [bookDetails, setBookDetails] = useState<Book | null>(book);
 
-    const categoryImage = categoryImages[book.category] ?? imgTecnologia;
+    useEffect(() => {
+        async function fetchLoans() {
+            try {
+            const response = await fetch("http://localhost:3001/emprestimos"); 
+            const data = await response.json();
+            setLoans(Array.isArray(data) ? data : data.emprestimos ?? []);
+            } catch (error) {
+            console.error("Erro ao buscar empréstimos:", error);
+            } 
+        }
+
+        fetchLoans();
+        setBookDetails(book);
+    }, [book]);
+
+            async function handleReturnLoan(loanId: string) {
+            try {
+
+                const response = await fetch(
+                    `http://localhost:3001/emprestimos/${loanId}`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            status: "DEVOLVIDO"
+                        }),
+                    }
+                );
+
+                if (response.ok) {
+
+                    setLoans((prevLoans) =>
+                        prevLoans.map((loan) =>
+                            loan.id === loanId
+                                ? { ...loan, status: "DEVOLVIDO" }
+                                : loan
+                        )
+                    );
+
+                    await refreshBookData();
+                }
+
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+    async function refreshBookData() {
+        if (!bookDetails) return;
+
+        try {
+
+            const response = await fetch(
+                `http://localhost:3001/livros/${bookDetails.id}`
+            );
+
+            const updatedBook = await response.json();
+
+            setBookDetails(updatedBook);
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+
+    if (!isOpen || !bookDetails) return null;
+
+    const filteredLoans = loans.filter(
+        (loan) => loan.bookId === bookDetails.id
+    );
+
+    const categoryImage = categoryImages[bookDetails.category] ?? imgTecnologia;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-16">
@@ -55,40 +122,40 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
                 <section className="flex gap-8">
                     <img
                         src={categoryImage.src}
-                        alt={book.category}
+                        alt={bookDetails.category}
                         className="h-32 w-24 flex-shrink-0 rounded-lg object-cover"
                     />
 
                     <div className="flex w-full flex-col gap-6">
                         <div>
-                            <h2 className="text-2xl font-semibold text-gray-900">{book.title}</h2>
-                            <p className="text-gray-500">{book.author}</p>
+                            <h2 className="text-2xl font-semibold text-gray-900">{bookDetails.title}</h2>
+                            <p className="text-gray-500">{bookDetails.author}</p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-y-4 text-sm">
                             <div>
                                 <p className="text-gray-500">ISBN</p>
-                                <p className="font-medium text-gray-900">{book.isbn}</p>
+                                <p className="font-medium text-gray-900">{bookDetails.isbn}</p>
                             </div>
                             <div>
                                 <p className="text-gray-500">Categoria</p>
-                                <p className="font-medium text-[#00C389]">{book.category}</p>
+                                <p className="font-medium text-[#00C389]">{bookDetails.category}</p>
                             </div>
                             <div>
                                 <p className="text-gray-500">Editora</p>
-                                <p className="font-medium text-gray-900">{book.publisher}</p>
+                                <p className="font-medium text-gray-900">{bookDetails.publisher}</p>
                             </div>
                             <div>
                                 <p className="text-gray-500">Ano</p>
-                                <p className="font-medium text-gray-900">{book.year}</p>
+                                <p className="font-medium text-gray-900">{bookDetails.year}</p>
                             </div>
                             <div>
                                 <p className="text-gray-500">Quantidade Total</p>
-                                <p className="font-medium text-gray-900">{book.totalQuantity} unidades</p>
+                                <p className="font-medium text-gray-900">{bookDetails.totalQuantity} unidades</p>
                             </div>
                             <div>
                                 <p className="text-gray-500">Quantidade Disponível</p>
-                                <p className="font-medium text-[#00C389]">{book.availableQuantity} unidades</p>
+                                <p className="font-medium text-[#00C389]">{bookDetails.availableQuantity} unidades</p>
                             </div>
                         </div>
                     </div>
@@ -99,27 +166,21 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
                 {/* History section */}
                 <section className="flex flex-col gap-4">
                     <h3 className="text-lg font-semibold text-gray-900">Histórico de Empréstimos</h3>
-                    
-                    <div className="flex max-h-[300px] flex-col gap-3 overflow-y-auto pr-2">
-                        <HistoryCard 
-                        name="João Silva"
-                        email="joao@email.com"
-                        rentalDate="20/05/2026"
-                        dueDate="27/05/2026"
-                        />
-                        <HistoryCard 
-                        name="Maria Santos"
-                        email="maria@email.com"
-                        rentalDate="10/04/2026"
-                        dueDate="17/04/2026"
-                        />
-                        <HistoryCard
-                        name="Pedro Costa"
-                        email="pedro@email.com"
-                        rentalDate="05/04/2026"
-                        dueDate="12/04/2026"
-                        />
-                    </div>
+                    {filteredLoans.length > 0 ? (
+                        <div className="flex max-h-[300px] flex-col gap-3 overflow-y-auto pr-2">
+                            {filteredLoans.map((loan: Loan) => {
+                                return (
+                                    <HistoryCard
+                                        key={loan.id}
+                                        loan={loan}
+                                        onReturn={handleReturnLoan}
+                                    />
+                                );
+                            })}
+                        </div>
+                    ) : (   
+                        <p className="text-gray-500">Nenhum histórico de empréstimos encontrado.</p>
+                    )}
                 </section>
             </div>
         </div>
