@@ -69,20 +69,66 @@ class EmprestimoController {
     }
   }
   async updateStatus(req: Request, res: Response) {
-  const { id } = req.params; 
-  const { status } = req.body; 
+    const { id } = req.params;
+    const { status } = req.body;
 
-  try {
-    const updatedEmprestimo = await prisma.emprestimo.update({
-      where: { id },
-      data: { status },
-    });
+    try {
+      const resultado = await prisma.$transaction(async (tx) => {
 
-    return res.status(200).json(updatedEmprestimo);
-  } catch (error) {
-    return res.status(400).json({ error: "Erro ao atualizar o status do empréstimo." });
+        const emprestimo = await tx.emprestimo.findUnique({
+          where: { id }
+        });
+
+        console.log("ANTES");
+        console.log(emprestimo);
+
+        if (!emprestimo) {
+          throw new Error("Empréstimo não encontrado.");
+        }
+
+        if (
+          emprestimo.status === "DEVOLVIDO" &&
+          status === "DEVOLVIDO"
+        ) {
+          throw new Error("Livro já foi devolvido.");
+        }
+
+        const updatedEmprestimo = await tx.emprestimo.update({
+          where: { id },
+          data: { status },
+        });
+
+        const livroAtualizado = await tx.livro.findUnique({
+          where: { id: emprestimo.livroId }
+        });
+
+        console.log("DEPOIS");
+        console.log(livroAtualizado);
+
+        if (status === "DEVOLVIDO") {
+          await tx.livro.update({
+            where: { id: emprestimo.livroId },
+            data: {
+              quantidadeDisponivel: {
+                increment: 1
+              }
+            }
+          });
+        }
+
+        return updatedEmprestimo;
+      });
+      
+
+      return res.status(200).json(resultado);
+
+    } catch (error) {
+      return res.status(400).json({
+        error: "Erro ao atualizar o status do empréstimo."
+      });
+    }
   }
 }
-}
+
 
 export default new EmprestimoController();

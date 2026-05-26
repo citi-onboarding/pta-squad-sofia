@@ -6,9 +6,10 @@ import { Loan } from "@/types/Loan";
 
 interface HistoryCardProps {
     loan: Loan;
+    onReturn: (loanId: string) => void;
 }
 
-export default function HistoryCard({ loan }: HistoryCardProps) {
+export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
     const [isReturned, setIsReturned] = useState(loan.status === "DEVOLVIDO");
 
     async function markAsReturned() {
@@ -23,6 +24,7 @@ export default function HistoryCard({ loan }: HistoryCardProps) {
 
             if (response.ok) {
                 setIsReturned(true);
+                onReturn(loan.id);
             } else {
                 console.error("Erro ao marcar como devolvido:", response.statusText);
             }
