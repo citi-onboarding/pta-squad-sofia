@@ -187,7 +187,7 @@ export const getBookById = async (req: Request, res: Response) => {
         dueDate: dueDate.toLocaleDateString("pt-BR"),
         status: calculatedStatus
       }
-    })
+    }) 
 
     return res.status(200).json({
       title: book.titulo,

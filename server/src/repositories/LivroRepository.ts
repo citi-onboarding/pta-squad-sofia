@@ -60,7 +60,6 @@ export const deleteBookRepository = async (bookId: string) => {
     await tx.emprestimo.deleteMany({
       where: { livroId: bookId }
     });
-
     return await tx.livro.delete({
       where: { id: bookId }
     });
