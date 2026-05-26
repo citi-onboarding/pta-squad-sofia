@@ -1,12 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import BookDetails from "@/components/BookDetails";
 import { RecentLoansTable } from "@/components/RecentLoansTable/recentLoansTable";
 import { CategoryChart } from "@/components/CategoryChart";
 import { MetricCard } from "@/components/MetricCard";
 import { BookOpen, Clock, AlertCircle } from "lucide-react"; 
+import { api } from "@/lib/api"; 
+
+interface DashboardResponse {
+  totalLivros: number;
+  emprestimosAtivos: number;
+  emprestimosAtrasados: number;
+  contagemPorCategoria: {
+    categoria: string;
+    quantidade: number;
+  }[];
+  ultimosEmprestimos: {
+    id: string;
+    nomeCliente: string;
+    emailCliente: string;
+    dataPrevistaDevolucao: string;
+    createdAt: string;
+    status: "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO"; 
+    livro: {
+      titulo: string; 
+    };
+  }[];
+}
 
 const mockBookData = {
   title: "O Senhor dos Anéis",
@@ -19,51 +41,46 @@ const mockBookData = {
   availableQuantity: 3,
 };
 
-const mockLoans = [
-  {
-    id: "1",
-    bookTitle: "Clean Code",
-    clientName: "João Silva",
-    rentalDate: "2026-04-20T00:00:00.000Z",
-    returnDate: "2026-04-27T00:00:00.000Z",
-    status: "EM_ANDAMENTO" as const,
-  },
-  {
-    id: "2",
-    bookTitle: "O Pequeno Príncipe",
-    clientName: "Maria Santos",
-    rentalDate: "2026-04-18T00:00:00.000Z",
-    returnDate: "2026-04-25T00:00:00.000Z",
-    status: "ATRASADO" as const,
-  },
-  {
-    id: "3",
-    bookTitle: "Dom Casmurro",
-    clientName: "Pedro Costa",
-    rentalDate: "2026-04-15T00:00:00.000Z",
-    returnDate: "2026-04-22T00:00:00.000Z",
-    status: "DEVOLVIDO" as const,
-  },
-  {
-    id: "4",
-    bookTitle: "JavaScript: The Good Parts",
-    clientName: "Ana Oliveira",
-    rentalDate: "2026-04-22T00:00:00.000Z",
-    returnDate: "2026-04-29T00:00:00.000Z",
-    status: "EM_ANDAMENTO" as const,
-  },
-];
-
-const mockCategoryData = [
-  { category: "Romance", quantity: 245 },
-  { category: "Tecnologia", quantity: 318 },
-  { category: "História", quantity: 190 },
-  { category: "Ciências", quantity: 265 },
-  { category: "Infantil", quantity: 230 },
-];
-
 export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
+  
+  const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        setLoading(true);
+        const response = await api.get<DashboardResponse>("/dashboard");
+        setDashboardData(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar dados do dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading || !dashboardData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-500 font-medium">Carregando dados da dashboard...</p>
+      </div>
+    );
+  }
+
+  const formattedLoans = dashboardData.ultimosEmprestimos.map((loan) => ({
+    id: loan.id,
+    bookTitle: loan.livro.titulo, 
+    clientName: loan.nomeCliente,
+    rentalDate: loan.createdAt,
+    returnDate: loan.dataPrevistaDevolucao,
+    status: loan.status === "EM_ANDAMENTO" && new Date(loan.dataPrevistaDevolucao) < new Date() 
+      ? ("ATRASADO" as const) 
+      : (loan.status as "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO"),
+  }));
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center">
@@ -83,30 +100,30 @@ export default function Home() {
         <div className="flex flex-wrap gap-4 w-full">
           <MetricCard 
             title="Total de Livros" 
-            value="1.245" 
+            value={dashboardData.totalLivros.toLocaleString("pt-BR")} 
             icon={BookOpen} 
             iconColorClass="text-[#00C389]" 
             iconBgColorClass="bg-[#00C389]/10"
           />
           <MetricCard 
             title="Empréstimos Ativos" 
-            value="87" 
+            value={dashboardData.emprestimosAtivos.toString()} 
             icon={Clock} 
             iconColorClass="text-[#00C389]" 
             iconBgColorClass="bg-[#00C389]/10"
           />
           <MetricCard 
             title="Livros Atrasados" 
-            value="12" 
+            value={dashboardData.emprestimosAtrasados.toString()} 
             icon={AlertCircle} 
             iconColorClass="text-[#FF5B5B]" 
             iconBgColorClass="bg-[#FF5B5B]/10"
           />
         </div>
 
-        <CategoryChart data={mockCategoryData} />
+        <CategoryChart data={dashboardData.contagemPorCategoria} />
 
-        <RecentLoansTable loans={mockLoans} />
+        <RecentLoansTable loans={formattedLoans} />
       </div>
     </main>
   );
