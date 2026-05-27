@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Header } from "@/components/Header";
 import BookDetails from "@/components/BookDetails";
 import { RecentLoansTable } from "@/components/RecentLoansTable/recentLoansTable";
 import { CategoryChart } from "@/components/CategoryChart";
@@ -84,12 +83,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center">
-      <div className="w-full">
-        <Header />
-      </div>
-
-      <BookDetails isOpen={isOpen} onClose={() => setIsOpen(false)} book={mockBookData} />
-
       <div className="w-full max-w-[1000px] mt-8 px-4 flex flex-col gap-8 mb-12">
         
         <div className="flex flex-col gap-1">
