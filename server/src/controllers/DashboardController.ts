@@ -10,16 +10,16 @@ class DashboardController {
         _sum: { quantidadeTotal: true }
       });
 
-      //todos os que ainda estão em andamento (com ou sem atraso)
       const emprestimosAtivos = await prisma.emprestimo.count({
-        where: { status: 'EM_ANDAMENTO' }
+        where: { status: { in: ['EM_ANDAMENTO', 'ATRASADO'] } }
       });
 
-      //quais já passaram da data
       const emprestimosAtrasados = await prisma.emprestimo.count({
         where: {
-          status: 'EM_ANDAMENTO',
-          dataPrevistaDevolucao: { lt: hoje }
+          OR: [
+            { status: 'ATRASADO' },
+            { status: 'EM_ANDAMENTO', dataPrevistaDevolucao: { lt: hoje } }
+          ]
         }
       });
 
