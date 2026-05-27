@@ -81,7 +81,7 @@ export default function BookRegister() {
       })
 
       if (response.status === 201) {
-        router.push("/BookScreen");
+        router.push("/");
       } else {
         const errorData = await response.json();
         alert(`Erro ao salvar: ${errorData.message || "Verifique os dados"}`);
