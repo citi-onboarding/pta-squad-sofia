@@ -5,6 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 interface BookProps {
+  id: string;
   title: string;
   author: string;
   category: string;
@@ -21,14 +22,9 @@ interface LoanFormData {
 interface LoanProps {
   isOpen: boolean;
   onClose: () => void;
+  selectedBook: BookProps | null;
+  onSuccess: () => void;
 }
-
-const mockBook: BookProps = {
-  title: "O Pequeno Príncipe",
-  author: "Antoine de Saint-Exupéry",
-  category: "Infantil",
-  stock: 8
-};
 
 const schema = yup.object({
   name: yup.string().required("O campo nome é obrigatório"),
@@ -51,10 +47,8 @@ const schema = yup.object({
 }).required();
 
 
-export default function LoanModal({ isOpen, onClose }: LoanProps) {
-  if (!isOpen) return null;
-
-  const { register, handleSubmit, formState: { errors } } = useForm<LoanFormData>({
+export default function LoanModal({ isOpen, onClose, selectedBook, onSuccess }: LoanProps) {
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<LoanFormData>({
     defaultValues: {
       name: "",
       email: "",
@@ -64,8 +58,40 @@ export default function LoanModal({ isOpen, onClose }: LoanProps) {
     resolver: yupResolver(schema)
   });
 
-  function onSubmit(data: LoanFormData) {
-    console.log(data);
+  if (!isOpen || !selectedBook) return null;
+
+  async function onSubmit(data: LoanFormData) {
+    if (!selectedBook) return;
+
+    const payload = {
+      nomeCliente: data.name,
+      emailCliente: data.email,
+      dataPrevistaDevolucao: data.devolutionDate, 
+      livroId: selectedBook.id, 
+    };
+
+    try {
+      const response = await fetch("http://localhost:3001/emprestimos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.status === 201) {
+        alert("Empréstimo realizado com sucesso!");
+        reset();
+        onSuccess();
+        onClose();
+      } else {
+        const errorData = await response.json();
+        alert(`Erro: ${errorData.error || "Não foi possível realizar o empréstimo."}`);
+      }
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      alert("Erro de conexão. Verifique se o Back-end está rodando.");
+    }
   }
 
   return (
@@ -86,7 +112,7 @@ export default function LoanModal({ isOpen, onClose }: LoanProps) {
         <div className="flex flex-col p-6 gap-6 font-medium leading-6 text-basetext-zinc-900 border-b">
           <div className="p-4 bg-slate-50 rounded-s-lg">
             <p className="font-normal text-sm leading-5 text-zinc-500">Livro selecionado</p>
-            <h2 className="font-normal">{mockBook.title}</h2>
+            <h2 className="font-normal">{selectedBook.title}</h2>
           </div>
           
           {/* Campos do formulário */}
