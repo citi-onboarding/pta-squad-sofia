@@ -26,16 +26,16 @@ export default function Home() {
     return matchesSearch && matchesCategory;
   }) || [];
   
+  async function fetchBooks() {
+    try {
+      const response = await fetch("http://localhost:3001/livros"); 
+      const data = await response.json();
+      setBooks(Array.isArray(data) ? data : data.livros ?? []);
+    } catch (error) {
+      console.error("Erro ao buscar livros:", error);
+    } 
+  }
   useEffect(() => {
-      async function fetchBooks() {
-        try {
-          const response = await fetch("http://localhost:3001/livros"); 
-          const data = await response.json();
-          setBooks(Array.isArray(data) ? data : data.livros ?? []);
-        } catch (error) {
-          console.error("Erro ao buscar livros:", error);
-        } 
-      }
       fetchBooks();
     }, []);
 
@@ -141,6 +141,8 @@ export default function Home() {
       <LoanModal 
         isOpen={isLoanOpen}
         onClose={() => setIsLoanOpen(false)}
+        selectedBook={selectedBook as any}
+        onSuccess={fetchBooks}
       />
     </main>
   );

@@ -122,9 +122,9 @@ class EmprestimoController {
 
       return res.status(200).json(resultado);
 
-    } catch (error) {
+    } catch (error: any) {
       return res.status(400).json({
-        error: "Erro ao atualizar o status do empréstimo."
+        error: error.message
       });
     }
   }
