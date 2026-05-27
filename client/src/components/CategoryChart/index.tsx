@@ -4,8 +4,8 @@ import React from "react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 
 interface CategoryData {
-  category: string;
-  quantity: number;
+  categoria: string;  
+  quantidade: number; 
 }
 
 interface CategoryChartProps {
@@ -24,10 +24,10 @@ export function CategoryChart({ data }: CategoryChartProps) {
           <BarChart 
             data={data} 
             margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-            barSize={120}
+            barSize={60} // reduzi de 120 para 60 para as barras não ficarem coladas se tiver pouca categoria!
           >
             <XAxis 
-              dataKey="category" 
+              dataKey="categoria" 
               stroke="#717182" 
               fontSize={12}
               tickLine={false}
@@ -55,7 +55,7 @@ export function CategoryChart({ data }: CategoryChartProps) {
               }}
             />
             <Bar 
-              dataKey="quantity" 
+              dataKey="quantidade" 
               name="Quantidade"
               fill="#00C389" 
               radius={[8, 8, 0, 0]}

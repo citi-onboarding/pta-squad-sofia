@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import  prisma  from "../database";
+import prisma from "../database";
 
 class DashboardController {
   async get(req: Request, res: Response) {
@@ -11,13 +11,15 @@ class DashboardController {
       });
 
       const emprestimosAtivos = await prisma.emprestimo.count({
-        where: { status: 'EM_ANDAMENTO' }
+        where: { status: { in: ['EM_ANDAMENTO', 'ATRASADO'] } }
       });
 
       const emprestimosAtrasados = await prisma.emprestimo.count({
         where: {
-          status: 'EM_ANDAMENTO',
-          dataPrevistaDevolucao: { lt: hoje }
+          OR: [
+            { status: 'ATRASADO' },
+            { status: 'EM_ANDAMENTO', dataPrevistaDevolucao: { lt: hoje } }
+          ]
         }
       });
 
@@ -26,14 +28,34 @@ class DashboardController {
         _count: { categoria: true }
       });
 
+      const ultimosEmprestimos = await prisma.emprestimo.findMany({
+        take: 4,
+        orderBy: {
+          createdAt: 'desc'
+        },
+        include: {
+          livro: true
+        }
+      });
+
+      //flag de status para o front-end na listagem
+      const ultimosEmprestimosFormatados = ultimosEmprestimos.map((emp) => {
+        const estaAtrasado = emp.status === 'EM_ANDAMENTO' && new Date(emp.dataPrevistaDevolucao) < hoje;
+        return {
+          ...emp,
+          status: estaAtrasado ? 'ATRASADO' : emp.status 
+        };
+      });
+
       return res.status(200).json({
         totalLivros: totalLivros._sum.quantidadeTotal || 0,
-        emprestimosAtivos,
-        emprestimosAtrasados,
+        emprestimosAtivos, 
+        emprestimosAtrasados, 
         contagemPorCategoria: contagemPorCategoria.map(item => ({
           categoria: item.categoria,
           quantidade: item._count.categoria
-        }))
+        })),
+        ultimosEmprestimos: ultimosEmprestimosFormatados
       });
     } catch (error) {
       return res.status(500).json({ error: "Erro ao carregar dados do dashboard." });
