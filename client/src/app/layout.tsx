@@ -5,8 +5,8 @@ import { Header } from "@/components/Header";
 import "styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "Next.js Boilerplate",
-  description: "A simple boilerplate for next.js",
+  title: "Biblioteca Escolar",
+  description: "Uma biblioteca escolar",
   manifest: "/manifest.json",
 };
 
