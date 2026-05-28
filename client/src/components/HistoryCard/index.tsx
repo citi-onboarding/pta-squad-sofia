@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Check, Mail } from "lucide-react";
 import { Loan } from "@/types/Loan";
 
@@ -11,10 +11,11 @@ interface HistoryCardProps {
 
 export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
     const [sendingReminder, setSendingReminder] = useState(false);
+
     async function markAsReturned() {
         try {
             const response = await fetch(
-                `http://localhost:3001/emprestimos/${loan.id}/status`,
+                `${process.env.NEXT_PUBLIC_API_URL}/emprestimos/${loan.id}/status`,
                 {
                     method: "PATCH",
                     headers: {
@@ -32,53 +33,52 @@ export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
 
             alert("Devolução registrada!");
 
-            onReturn(loan.id); // só UI update
+            onReturn(loan.id);
+
         } catch (error) {
             console.error(error);
         }
     }
 
     async function sendReminder() {
-    try {
-        setSendingReminder(true);
+        try {
+            setSendingReminder(true);
 
-        const response = await fetch("http://localhost:3001/send-reminder", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                customerEmail: loan.customerEmail,
-                customerName: loan.customerName,
-                dueDate: loan.dueDate,
-                bookTitle: loan.book.title,
-            }),
-        });
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/send-reminder`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        customerEmail: loan.customerEmail,
+                        customerName: loan.customerName,
+                        dueDate: loan.dueDate,
+                        bookTitle: loan.book.title,
+                    }),
+                }
+            );
 
-        if (response.ok) {
-            alert("Lembrete enviado!");
+            if (response.ok) {
+                alert("Lembrete enviado!");
+            }
+
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setSendingReminder(false);
         }
-
-    } catch (error) {
-        console.error(error);
-    } finally {
-        setSendingReminder(false);
     }
-}
 
-
-    const statusStyles: Record<string, string>  = {
+    const statusStyles: Record<string, string> = {
         EM_ANDAMENTO: "border-[#FFDF20] bg-[#FEF9C2] text-[#A65F00]",
         ATRASADO: "border-[#EF44444D] bg-[#EF444433] text-[#EF4444]",
         DEVOLVIDO: "border-[#00C3894D] bg-[#00C38933] text-[#00C389]"
     };
 
     const rentalDate = new Date(loan.rentalDate);
-    const dueDate= new Date(loan.dueDate);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
+    const dueDate = new Date(loan.dueDate);
 
     return (
         <article className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
@@ -89,29 +89,38 @@ export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
                     <h2 className="text-lg font-medium text-gray-900">
                         {loan.customerName}
                     </h2>
-                    <span className={`
-                        rounded-full border px-3 py-1 text-xs font-medium
-                        ${statusStyles[loan.status]}
-                    `}>
+
+                    <span
+                        className={`
+                            rounded-full border px-3 py-1 text-xs font-medium
+                            ${statusStyles[loan.status]}
+                        `}
+                    >
                         {loan.status}
                     </span>
                 </header>
+
                 <p className="text-sm text-gray-500">
                     {loan.customerEmail}
                 </p>
-                <footer className="flex items-center gap-4 text-sm">
 
+                <footer className="flex items-center gap-4 text-sm">
                     <div>
                         <span>Locação: </span>
-                        <strong>{rentalDate.toLocaleDateString("pt-BR")}</strong>
+                        <strong>
+                            {rentalDate.toLocaleDateString("pt-BR")}
+                        </strong>
                     </div>
 
                     <div>
                         <span>Previsão: </span>
-                        <strong>{dueDate.toLocaleDateString("pt-BR")}</strong>
+                        <strong>
+                            {dueDate.toLocaleDateString("pt-BR")}
+                        </strong>
                     </div>
                 </footer>
             </div>
+
             <div className="flex gap-3">
 
                 {loan.status === "ATRASADO" && (
@@ -119,8 +128,8 @@ export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
                         type="button"
                         onClick={sendReminder}
                         disabled={sendingReminder}
-                        className="flex items-center gap-2 rounded-lg border border-[#00C389] px-5 py-3 text-[#00C389] hover:bg-emerald-50 transition-transform duration-100 active:scale-95">
-                        {/* Icone de um envelope simulando o do figma */}
+                        className="flex items-center gap-2 rounded-lg border border-[#00C389] px-5 py-3 text-[#00C389] transition-transform duration-100 hover:bg-emerald-50 active:scale-95"
+                    >
                         <Mail size={18} />
                         {sendingReminder ? "Enviando..." : "Enviar Lembrete"}
                     </button>
@@ -130,7 +139,7 @@ export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
                     <button
                         type="button"
                         onClick={markAsReturned}
-                        className="flex items-center gap-2 rounded-lg bg-[#00C389] px-5 py-3 text-white hover:opacity-90 transition-transform duration-100 active:scale-95"
+                        className="flex items-center gap-2 rounded-lg bg-[#00C389] px-5 py-3 text-white transition-transform duration-100 hover:opacity-90 active:scale-95"
                     >
                         <Check size={18} />
                         Marcar devolução

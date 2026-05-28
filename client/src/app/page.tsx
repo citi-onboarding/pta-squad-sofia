@@ -28,7 +28,7 @@ export default function Home() {
   
   async function fetchBooks() {
     try {
-      const response = await fetch("http://localhost:3001/livros"); 
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/livros`);
       const data = await response.json();
       setBooks(Array.isArray(data) ? data : data.livros ?? []);
     } catch (error) {
@@ -41,7 +41,7 @@ export default function Home() {
 
   async function decrementBook(id: string) {
     try {
-      const response = await fetch(`http://localhost:3001/livros/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/livros/${id}`, {
         method: "PATCH",
       });
 
