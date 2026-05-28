@@ -33,7 +33,7 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
     useEffect(() => {
         async function fetchLoans() {
             try {
-            const response = await fetch("http://localhost:3001/emprestimos"); 
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/emprestimos`);
             const data = await response.json();
             setLoans(Array.isArray(data) ? data : data.emprestimos ?? []);
             } catch (error) {
@@ -49,7 +49,7 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
             try {
 
                 const response = await fetch(
-                    `http://localhost:3001/emprestimos/${loanId}`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/emprestimos/${loanId}`,
                     {
                         method: "PATCH",
                         headers: {
@@ -85,7 +85,7 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
         try {
 
             const response = await fetch(
-                `http://localhost:3001/livros/${bookDetails.id}`
+                `${process.env.NEXT_PUBLIC_API_URL}/livros/${bookDetails.id}`
             );
 
             const updatedBook = await response.json();

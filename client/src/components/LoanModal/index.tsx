@@ -71,7 +71,7 @@ export default function LoanModal({ isOpen, onClose, selectedBook, onSuccess }: 
     };
 
     try {
-      const response = await fetch("http://localhost:3001/emprestimos", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/emprestimos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -14,7 +14,7 @@ export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
 
     async function markAsReturned() {
         try {
-            const response = await fetch(`http://localhost:3001/emprestimos/${loan.id}/status`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/emprestimos/${loan.id}/status`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
