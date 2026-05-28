@@ -46,42 +46,35 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
     }, [book]);
 
     async function handleReturnLoan(loanId: string) {
-        setLoans((prevLoans) =>
-            prevLoans.map((loan) =>
-                loan.id === loanId
-                    ? { ...loan, status: "DEVOLVIDO" }
-                    : loan
-            )
-        );
-        await refreshBookData();
+        try {
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/emprestimos/${loanId}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        status: "DEVOLVIDO"
+                    }),
+                }
+            );
 
-    }
-
-                const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/emprestimos/${loanId}`,
-                    {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            status: "DEVOLVIDO"
-                        }),
-                    }
+            if (response.ok) {
+                setLoans((prevLoans) =>
+                    prevLoans.map((loan) =>
+                        loan.id === loanId
+                            ? { ...loan, status: "DEVOLVIDO" }
+                            : loan
+                    )
                 );
 
-                if (response.ok) {
-
-                    setLoans((prevLoans) =>
-                        prevLoans.map((loan) =>
-                            loan.id === loanId
-                                ? { ...loan, status: "DEVOLVIDO" }
-                                : loan
-                        )
-                    );
-
-                    await refreshBookData();
-                }
+                await refreshBookData();
+            }
+        } catch (error) {
+            console.error("Erro ao devolver empréstimo:", error);
+        }
+    }
 
 
     async function refreshBookData() {
