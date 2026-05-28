@@ -15,8 +15,8 @@ const categoryImages: Record<string, { src: string }> = {
     "TECNOLOGIA": imgTecnologia,
     "INFANTIL": imgInfantil,
     "ROMANCE": imgRomance,
-    "HISTÓRIA": imgHistoria,
-    "CIÊNCIAS": imgCiencias,
+    "HISTORIA": imgHistoria,
+    "CIENCIAS": imgCiencias,
 };
 
 
@@ -45,39 +45,19 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
         setBookDetails(book);
     }, [book]);
 
-            async function handleReturnLoan(loanId: string) {
-            try {
+    async function handleReturnLoan(loanId: string) {
+        setLoans((prevLoans) =>
+            prevLoans.map((loan) =>
+                loan.id === loanId
+                    ? { ...loan, status: "DEVOLVIDO" }
+                    : loan
+            )
+        );
+        await refreshBookData();
 
-                const response = await fetch(
-                    `http://localhost:3001/emprestimos/${loanId}`,
-                    {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            status: "DEVOLVIDO"
-                        }),
-                    }
-                );
+    }
 
-                if (response.ok) {
 
-                    setLoans((prevLoans) =>
-                        prevLoans.map((loan) =>
-                            loan.id === loanId
-                                ? { ...loan, status: "DEVOLVIDO" }
-                                : loan
-                        )
-                    );
-
-                    await refreshBookData();
-                }
-
-            } catch (error) {
-                console.error(error);
-            }
-        }
 
     async function refreshBookData() {
         if (!bookDetails) return;

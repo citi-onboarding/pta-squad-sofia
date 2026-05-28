@@ -10,34 +10,67 @@ interface HistoryCardProps {
 }
 
 export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
-    const [isReturned, setIsReturned] = useState(loan.status === "DEVOLVIDO");
-
+    const [sendingReminder, setSendingReminder] = useState(false);
     async function markAsReturned() {
         try {
-            const response = await fetch(`http://localhost:3001/emprestimos/${loan.id}/status`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ status: "DEVOLVIDO" }),
-            });
+            const response = await fetch(
+                `http://localhost:3001/emprestimos/${loan.id}/status`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ status: "DEVOLVIDO" }),
+                }
+            );
 
-            if (response.ok) {
-                setIsReturned(true);
-                onReturn(loan.id);
-            } else {
-                console.error("Erro ao marcar como devolvido:", response.statusText);
+            if (!response.ok) {
+                const err = await response.json();
+                console.error("Erro backend:", err);
+                return;
             }
+
+            alert("Devolução registrada!");
+
+            onReturn(loan.id); // só UI update
         } catch (error) {
-            console.error("Erro ao marcar como devolvido:", error);
+            console.error(error);
         }
     }
 
+    async function sendReminder() {
+    try {
+        setSendingReminder(true);
 
-    const statusStyles = {
-        "Em andamento": "border-[#FFDF20] bg-[#FEF9C2] text-[#A65F00]",
-        "Atrasado": "border-[#EF44444D] bg-[#EF444433] text-[#EF4444]",
-        "Devolvido": "border-[#00C3894D] bg-[#00C38933] text-[#00C389]"
+        const response = await fetch("http://localhost:3001/send-reminder", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                customerEmail: loan.customerEmail,
+                customerName: loan.customerName,
+                dueDate: loan.dueDate,
+                bookTitle: loan.book.title,
+            }),
+        });
+
+        if (response.ok) {
+            alert("Lembrete enviado!");
+        }
+
+    } catch (error) {
+        console.error(error);
+    } finally {
+        setSendingReminder(false);
+    }
+}
+
+
+    const statusStyles: Record<string, string>  = {
+        EM_ANDAMENTO: "border-[#FFDF20] bg-[#FEF9C2] text-[#A65F00]",
+        ATRASADO: "border-[#EF44444D] bg-[#EF444433] text-[#EF4444]",
+        DEVOLVIDO: "border-[#00C3894D] bg-[#00C38933] text-[#00C389]"
     };
 
     const rentalDate = new Date(loan.rentalDate);
@@ -46,14 +79,6 @@ export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let calculatedStatus: "Em andamento" | "Atrasado" | "Devolvido" = "Em andamento";
-
-    if (isReturned) {
-        calculatedStatus = "Devolvido";
-    }
-    else if (today > dueDate) {
-        calculatedStatus = "Atrasado";
-    }
 
     return (
         <article className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
@@ -66,9 +91,9 @@ export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
                     </h2>
                     <span className={`
                         rounded-full border px-3 py-1 text-xs font-medium
-                        ${statusStyles[calculatedStatus]}
+                        ${statusStyles[loan.status]}
                     `}>
-                        {calculatedStatus}
+                        {loan.status}
                     </span>
                 </header>
                 <p className="text-sm text-gray-500">
@@ -89,16 +114,21 @@ export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
             </div>
             <div className="flex gap-3">
 
-                {calculatedStatus === "Atrasado" && (
-                    <button className="flex items-center gap-2 rounded-lg border border-[#00C389] px-5 py-3 text-[#00C389] hover:bg-emerald-50 transition-transform duration-100 active:scale-95">
+                {loan.status === "ATRASADO" && (
+                    <button
+                        type="button"
+                        onClick={sendReminder}
+                        disabled={sendingReminder}
+                        className="flex items-center gap-2 rounded-lg border border-[#00C389] px-5 py-3 text-[#00C389] hover:bg-emerald-50 transition-transform duration-100 active:scale-95">
                         {/* Icone de um envelope simulando o do figma */}
                         <Mail size={18} />
-                        Enviar Lembrete
+                        {sendingReminder ? "Enviando..." : "Enviar Lembrete"}
                     </button>
                 )}
 
-                {!isReturned && (
+                {loan.status !== "DEVOLVIDO" && (
                     <button
+                        type="button"
                         onClick={markAsReturned}
                         className="flex items-center gap-2 rounded-lg bg-[#00C389] px-5 py-3 text-white hover:opacity-90 transition-transform duration-100 active:scale-95"
                     >
