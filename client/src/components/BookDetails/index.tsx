@@ -15,8 +15,8 @@ const categoryImages: Record<string, { src: string }> = {
     "TECNOLOGIA": imgTecnologia,
     "INFANTIL": imgInfantil,
     "ROMANCE": imgRomance,
-    "HISTÓRIA": imgHistoria,
-    "CIÊNCIAS": imgCiencias,
+    "HISTORIA": imgHistoria,
+    "CIENCIAS": imgCiencias,
 };
 
 
@@ -45,8 +45,17 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
         setBookDetails(book);
     }, [book]);
 
-            async function handleReturnLoan(loanId: string) {
-            try {
+    async function handleReturnLoan(loanId: string) {
+        setLoans((prevLoans) =>
+            prevLoans.map((loan) =>
+                loan.id === loanId
+                    ? { ...loan, status: "DEVOLVIDO" }
+                    : loan
+            )
+        );
+        await refreshBookData();
+
+    }
 
                 const response = await fetch(
                     `${process.env.NEXT_PUBLIC_API_URL}/emprestimos/${loanId}`,
@@ -74,10 +83,6 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
                     await refreshBookData();
                 }
 
-            } catch (error) {
-                console.error(error);
-            }
-        }
 
     async function refreshBookData() {
         if (!bookDetails) return;
