@@ -57,7 +57,7 @@ export async function sendReminderEmail(req: Request, res: Response) {
                                   style="display:inline-block; background:#2ecc8b; color:#fff;
                                          text-decoration:none; padding:14px 32px; border-radius:999px;
                                          font-weight:700; font-size:14px;">
-                                  Acessar Meus Empréstimos
+                                  Acessar Biblioteca
                                 </a>
                               </div>
                             </td>
