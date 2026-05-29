@@ -31,7 +31,7 @@ export default function BookCategorySelector({
     <div className="border-t">
       <p className="mt-6 font-medium">Categoria</p>
 
-      <div className="mt-4 grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <input type="hidden" {...register("category")} />
 
         {(

@@ -40,7 +40,7 @@ export default function BookCard({ book, onClick, onDecrement, onLoan }: BookCar
   }
 
   return (
-    <article className="flex flex-col gap-6 w-[394.67px] p-4 bg-white shadow-lg rounded-lg">
+    <article className="flex w-full flex-col gap-6 rounded-lg bg-white p-4 shadow-lg">
       {/* Imagem do livro */}
       <img 
         className="w-full h-auto rounded-md bg-gray-200"
