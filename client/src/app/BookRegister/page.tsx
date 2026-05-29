@@ -1,12 +1,12 @@
 "use client";
 
-import { Header } from "@/components/Header";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import BookFormField from "@/components/BookRegisterComponents/BookFormField";
 import BookCategorySelector from "@/components/BookRegisterComponents/BookCategorySelector";
 import { useRouter } from "next/navigation";
+import PageContainer from "@/components/PageContainer";
 
 const schema = yup.object({
   title: yup.string().required("*Este é um campo obrigatório"),
@@ -81,7 +81,7 @@ export default function BookRegister() {
       })
 
       if (response.status === 201) {
-        router.push("/BookScreen");
+        router.push("/");
       } else {
         const errorData = await response.json();
         alert(`Erro ao salvar: ${errorData.message || "Verifique os dados"}`);
@@ -94,59 +94,64 @@ export default function BookRegister() {
 
   return (
     <>
-      <main className="flex flex-col items-center gap-8">
-        <div className="mt-8 w-[836px]">
-          <h1 className="text-2xl font-medium leading-9">
-            Cadastrar Novo Livro
-          </h1>
-          <p className="mt-2 text-[#717182]">
-            Adicione um novo livro ao acervo
-          </p>
-        </div>
+      <main className="min-h-screen bg-gray-50 py-8">
+        <PageContainer>
+          <div className="flex flex-col items-center gap-8">
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col mb-8 gap-8 rounded-lg bg-white p-6 shadow-md"
-        >
-          {/* Campo do formulário */}
-          <BookFormField
-            register={register}
-            errors={errors}
-            watch={watch}
-            submitCount={submitCount}
-          />
+            <div className="w-full max-w-4xl">
+              <h1 className="text-2xl font-medium leading-9">
+                Cadastrar Novo Livro
+              </h1>
+              <p className="mt-2 text-[#717182]">
+                Adicione um novo livro ao acervo
+              </p>
+            </div>
 
-          {/* Categoria */}
-          <BookCategorySelector
-            register={register}
-            setValue={setValue}
-            selectedCategory={selectedCategory}
-            errors={errors}
-            submitCount={submitCount}
-          />
-
-          {/* Botões */}
-          <div className="flex justify-end gap-4 border-t">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="mt-6 h-12 w-32 rounded-lg border-[2px] border-[#00C389] transition-all duration-200 hover:bg-[rgba(0,195,137,0.08)] hover:shadow-md active:scale-95 active:bg-[rgba(0,195,137,0.15)]"
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="w-full max-w-4xl flex flex-col gap-8 rounded-lg bg-white p-6 shadow-md mb-8"
             >
-              <span className="font-medium text-[#00C389]">
-                Cancelar
-              </span>
-            </button>
+              {/* Campo do formulário */}
+              <BookFormField
+                register={register}
+                errors={errors}
+                watch={watch}
+                submitCount={submitCount}
+              />
 
-            <button
-              type="submit"
-              className="mt-6 h-12 w-32 rounded-lg bg-[#00C389] transition-all duration-200 hover:bg-[#00B07B] hover:shadow-md active:scale-95 active:bg-[#009966]"
-            >
-              <span className="font-medium text-white">
-                Salvar Livro
-              </span>
-            </button>
+              {/* Categoria */}
+              <BookCategorySelector
+                register={register}
+                setValue={setValue}
+                selectedCategory={selectedCategory}
+                errors={errors}
+                submitCount={submitCount}
+              />
+
+              {/* Botões */}
+              <div className="flex justify-end gap-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="mt-6 h-12 w-32 rounded-lg border-[2px] border-[#00C389] transition-all duration-200 hover:bg-[rgba(0,195,137,0.08)] hover:shadow-md active:scale-95 active:bg-[rgba(0,195,137,0.15)]"
+                >
+                  <span className="font-medium text-[#00C389]">
+                    Cancelar
+                  </span>
+                </button>
+
+                <button
+                  type="submit"
+                  className="mt-6 h-12 w-32 rounded-lg bg-[#00C389] transition-all duration-200 hover:bg-[#00B07B] hover:shadow-md active:scale-95 active:bg-[#009966]"
+                >
+                  <span className="font-medium text-white">
+                    Salvar Livro
+                  </span>
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
+        </PageContainer>
       </main>
     </>
   );
