@@ -9,7 +9,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context"; 
 import { Search } from "lucide-react-native";
 import { BookCardMobile } from "../src/components/BookCardMobile";
-import CitiLogo from '../src/assets/citi.svg';
+import { Image } from "react-native";
 
 type BookStatus = "RETURNED" | "IN_PROGRESS" | "OVERDUE";
 
@@ -36,7 +36,11 @@ export default function App() {
       
       <View className="flex-row items-center px-6 py-4 bg-white border-b border-gray-200">
         
-        <CitiLogo width={48} height={24} style={{ marginRight: 16 }} />
+        <Image 
+          source={require('../src/assets/images/logoCiti_semfundo.png')} 
+          style={{ width: 69, height: 32, marginRight: 16 }} 
+          resizeMode="contain"
+        />
 
         <Text className="text-lg font-semibold text-gray-800">
           Meus Empréstimos
