@@ -72,7 +72,7 @@ export default function BookRegister() {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/livros", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/livros`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,7 +81,7 @@ export default function BookRegister() {
       })
 
       if (response.status === 201) {
-        router.push("/BookScreen");
+        router.push("/");
       } else {
         const errorData = await response.json();
         alert(`Erro ao salvar: ${errorData.message || "Verifique os dados"}`);

@@ -8,7 +8,11 @@ dotenv.config();
 
 const app = express();
 
-const allowedOrigins = ["http://localhost:3000", "http://localhost:3002"];
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3002",
+  "https://pta-squad-sofia.vercel.app",
+];
 
 app.use(
   cors({
