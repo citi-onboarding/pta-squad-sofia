@@ -6,7 +6,6 @@ import {
   TouchableOpacity, 
   FlatList 
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context"; 
 import { Search } from "lucide-react-native";
 import { BookCardMobile } from "../src/components/BookCardMobile";
 import { Image } from "react-native";
@@ -29,10 +28,9 @@ const MOCK_DATA: BookData[] = [
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
-  const insets = useSafeAreaInsets(); 
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F5F5', paddingTop: insets.top }}>
+    <View style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
       
       <View className="flex-row items-center px-6 py-4 bg-white border-b border-gray-200">
         
