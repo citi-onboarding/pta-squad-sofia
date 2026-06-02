@@ -48,7 +48,7 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
     async function handleReturnLoan(loanId: string) {
         try {
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/emprestimos/${loanId}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/emprestimos/${loanId}/status`,
                 {
                     method: "PATCH",
                     headers: {

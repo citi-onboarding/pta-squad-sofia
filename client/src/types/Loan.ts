@@ -1,3 +1,5 @@
+import { Book } from "./Book";
+
 export interface Loan {
     id: string;
     customerName: string;
@@ -6,4 +8,5 @@ export interface Loan {
     dueDate: Date;
     status: string;
     bookId: string;
+    book: Book;
 }
