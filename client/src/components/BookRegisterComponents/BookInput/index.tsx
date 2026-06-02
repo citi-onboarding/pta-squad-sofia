@@ -33,7 +33,7 @@ export default function BookInput<T extends FieldValues>({
         {...register(name)}
         type="text"
         placeholder={placeholder}
-        className="mt-2 flex w-96 items-center rounded-lg border py-3.5 pl-4"
+        className="mt-2 flex w-full items-center rounded-lg border py-3.5 pl-4"
       />
 
       {error && (
