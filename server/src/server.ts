@@ -14,10 +14,12 @@ const allowedOrigins = [
   "https://pta-squad-sofia.vercel.app",
 ];
 
+const vercelPreviewPattern = /^https:\/\/pta-squad-sofia(-[a-z0-9]+-sofia-s-projects5)?\.vercel\.app$/;
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin) || vercelPreviewPattern.test(origin)) {
         callback(null, true);
       } else {
         callback(new Error("Bloqueado pelo CORS: Origem não permitida."));
