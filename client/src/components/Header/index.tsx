@@ -5,7 +5,6 @@ import { LayoutDashboard, BookText, Plus, Menu, X } from 'lucide-react';
 import Link from "next/link";
 
 export function Header() {
-  // controlar o menu no mobile
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -62,21 +61,36 @@ export function Header() {
 
       {isMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 w-full bg-white border-b border-gray-200 p-4 flex flex-col gap-4 shadow-lg">
-          <a href="#" className="flex items-center gap-3 text-gray-700 p-2 hover:bg-gray-50 rounded-lg">
+          
+          <Link 
+            href="/Dashboard" 
+            onClick={() => setIsMenuOpen(false)}
+            className="flex items-center gap-3 text-gray-700 p-2 hover:bg-gray-50 rounded-lg"
+          >
             <LayoutDashboard size={20} />
             <span className="font-medium text-lg">Dashboard</span>
-          </a>
-          <a href="#" className="flex items-center gap-3 text-gray-700 p-2 hover:bg-gray-50 rounded-lg">
+          </Link>
+          
+          <Link 
+            href="/" 
+            onClick={() => setIsMenuOpen(false)}
+            className="flex items-center gap-3 text-gray-700 p-2 hover:bg-gray-50 rounded-lg"
+          >
             <BookText size={20} />
             <span className="font-medium text-lg">Livros</span>
-          </a>
+          </Link>
           
           <hr className="border-gray-200 my-1" />
           
-          <button className="bg-[#58c08f] hover:bg-[#4ab07f] text-white w-full py-3 rounded-lg flex items-center justify-center gap-2 transition-all">
+          <Link 
+            href="/BookRegister"
+            onClick={() => setIsMenuOpen(false)}
+            className="bg-[#58c08f] hover:bg-[#4ab07f] text-white w-full py-3 rounded-lg flex items-center justify-center gap-2 transition-all"
+          >
             <Plus size={20} />
             <span className="font-semibold text-lg">Novo Livro</span>
-          </button>
+          </Link>
+
         </div>
       )}
     </header>
