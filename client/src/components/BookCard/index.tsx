@@ -43,14 +43,14 @@ export default function BookCard({ book, onClick, onDecrement, onLoan }: BookCar
     <article className="flex w-full flex-col gap-6 rounded-lg bg-white p-4 shadow-lg">
       {/* Imagem do livro */}
       <img 
-        className="w-full h-auto rounded-md bg-gray-200"
+        className="w-full h-[340px] object-cover rounded-md"
         src={imageSource.src}
         alt={`Capa do livro ${title}`}
         /> 
 
       {/* Informações do livro */}
       <div className="flex flex-col gap-2">
-        <h2 className="text-[rgba(30,30,30,1)] text-lg font-medium leading-6.75">{title}</h2>
+        <h2 className="text-[rgba(30,30,30,1)] text-lg font-medium leading-6.75 line-clamp-2 h-[54px]">{title}</h2>
         <p className="text-[rgba(113,113,130,1)] text-base leading-6">{author}</p>
         <p className="text-[rgba(0,195,137,1)] text-sm font-bold leading-5">{category}</p>
         <p className="text-[rgba(30,30,30,1)] text-sm leading-5">
@@ -59,7 +59,7 @@ export default function BookCard({ book, onClick, onDecrement, onLoan }: BookCar
       </div>
 
         {/* Botões */}
-      <div className="grid grid-cols-[115px_147px_66px] gap-2">
+      <div className="grid grid-cols-[115px_147px_66px] gap-2 mt-auto">
         <button 
           onClick={onClick}
           className="flex items-center justify-center gap-[7px] w-28.75 h-[47.33px] bg-transparent border-[1.67px] border-solid border-[rgba(0,195,137,1)] rounded-lg cursor-pointer transition-all duration-200 hover:bg-[rgba(0,195,137,0.08)] hover:shadow-md active:scale-95 active:bg-[rgba(0,195,137,0.15)]"> 

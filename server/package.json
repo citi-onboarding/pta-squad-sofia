@@ -7,12 +7,13 @@
     "push": "cross-env DATABASE_HOST='localhost' prisma db push",
     "dev": "concurrently \"ts-node-dev --poll --exit-child -r tsconfig-paths/register --respawn --transpile-only --ignore-watch node_modules --no-notify src/server.ts\" \"prisma generate --watch\"",
     "build": "swc src --extensions \".js,.ts\" --out-dir dist --copy-files",
-    "prod": "npm run migration:deploy && npm run start",
+    "prod": "npm run migration:deploy && npx prisma db seed && npm run start",
     "start": "npm run build && node dist/server.js",
     "generate": "prisma generate",
     "migration": "cross-env DATABASE_HOST='localhost' prisma migrate dev",
     "migration:deploy": "prisma migrate deploy",
-    "studio": "cross-env DATABASE_HOST='localhost' prisma studio"
+    "studio": "cross-env DATABASE_HOST='localhost' prisma studio",
+    "seed": "cross-env DATABASE_HOST='localhost' prisma db seed"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -35,5 +36,8 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "nodemailer": "^8.0.9"
+  },
+  "prisma": {
+    "seed": "ts-node --transpile-only ./prisma/seed/seedData.ts"
   }
 }
