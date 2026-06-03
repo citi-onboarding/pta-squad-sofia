@@ -53,7 +53,7 @@ export async function sendReminderEmail(req: Request, res: Response) {
                                 Não esqueça de devolvê-lo na biblioteca para evitar multas.
                               </p>
                               <div style="text-align:center; margin:28px 0;">
-                                <a href="http://localhost:3000/"
+                                <a href="${process.env.CLIENT_URL ?? 'http://localhost:3000'}"
                                   style="display:inline-block; background:#2ecc8b; color:#fff;
                                          text-decoration:none; padding:14px 32px; border-radius:999px;
                                          font-weight:700; font-size:14px;">
