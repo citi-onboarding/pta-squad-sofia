@@ -7,7 +7,7 @@
     "push": "cross-env DATABASE_HOST='localhost' prisma db push",
     "dev": "concurrently \"ts-node-dev --poll --exit-child -r tsconfig-paths/register --respawn --transpile-only --ignore-watch node_modules --no-notify src/server.ts\" \"prisma generate --watch\"",
     "build": "swc src --extensions \".js,.ts\" --out-dir dist --copy-files",
-    "prod": "npm run migration:deploy && npm run start",
+    "prod": "npm run migration:deploy && npx prisma db seed && npm run start",
     "start": "npm run build && node dist/server.js",
     "generate": "prisma generate",
     "migration": "cross-env DATABASE_HOST='localhost' prisma migrate dev",

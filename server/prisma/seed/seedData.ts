@@ -107,14 +107,13 @@ const dataForPopulation = [
 ];
 
 async function main() {
-    await prisma.emprestimo.deleteMany();
-    await prisma.livro.deleteMany();
-
     for (const item of dataForPopulation) {
         const { emprestimos, ...dadosDoLivro } = item;
 
-        await prisma.livro.create({
-            data: {
+        await prisma.livro.upsert({
+            where: { isbn: dadosDoLivro.isbn },
+            update: {},
+            create: {
                 ...dadosDoLivro,
                 emprestimo: {
                     create: emprestimos
@@ -122,7 +121,6 @@ async function main() {
             }
         });
     }
-
 }
 
 main()
