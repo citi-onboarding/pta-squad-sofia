@@ -20,7 +20,7 @@ export async function sendReminderEmail(req: Request, res: Response) {
 
     try {
         await transporter.sendMail({
-            from: process.env.GMAIL_USER,
+            from: process.env.GMAIL_FROM ?? process.env.GMAIL_USER,
             to: customerEmail,
             subject: "Lembrete de devolução",
             html: `
