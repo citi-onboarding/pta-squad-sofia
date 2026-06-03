@@ -98,11 +98,11 @@ export default function Home() {
             className="w-full sm:w-56 px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:border-[#00C389] focus:ring-1 focus:ring-[#00C389] shadow-sm transition-all"
           >
             <option value="">Todas as categorias</option>
-            <option value="Tecnologia">Tecnologia</option>
-            <option value="Infantil">Infantil</option>
-            <option value="Romance">Romance</option>
-            <option value="História">História</option>
-            <option value="Ciências">Ciências</option>
+            <option value="TECNOLOGIA">Tecnologia</option>
+            <option value="INFANTIL">Infantil</option>
+            <option value="ROMANCE">Romance</option>
+            <option value="HISTORIA">História</option>
+            <option value="CIENCIAS">Ciências</option>
           </select>
         </div>
 
