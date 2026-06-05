@@ -10,7 +10,7 @@ import { Search } from "lucide-react-native";
 import { BookCardMobile } from "../src/components/BookCardMobile";
 import { Image } from "react-native";
 
-const API_URL = "http://172.22.66.221:3001";
+const API_URL = "https://pta-squad-sofia.onrender.com/emprestimos";
 
 type BookStatus = "RETURNED" | "IN_PROGRESS" | "OVERDUE";
 

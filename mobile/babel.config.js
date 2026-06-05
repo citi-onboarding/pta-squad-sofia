@@ -20,6 +20,8 @@ module.exports = function (api) {
           },
         },
       ],
+      // Must be the last plugin (required by react-native-reanimated v4)
+      'react-native-worklets/plugin',
     ],
 
   };
