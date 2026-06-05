@@ -6,7 +6,6 @@ import { CategoryChart } from "@/components/CategoryChart";
 import { MetricCard } from "@/components/MetricCard";
 import { BookOpen, Clock, AlertCircle } from "lucide-react";
 import { api } from "@/lib/api";
-import PageContainer from "@/components/PageContainer";
 import { categoryMap } from "@/utils/dictionaries";
 
 interface DashboardResponse {
@@ -31,9 +30,6 @@ interface DashboardResponse {
 }
 
 export default function Home() {
-  const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
-
   const [dashboardData, setDashboardData] =
     useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -79,12 +75,7 @@ export default function Home() {
   }));
 
   const formattedChartData = dashboardData.contagemPorCategoria.map((item) => ({
-    ...item,
-    categoria: categoryMap[item.categoria.toUpperCase()] || item.categoria,
-  }));
-
-  const formattedChartData = dashboardData.contagemPorCategoria.map((item) => ({
-    category: item.categoria,
+    category: categoryMap[item.categoria.toUpperCase()] || item.categoria,
     quantity: item.quantidade,
   }));
 
