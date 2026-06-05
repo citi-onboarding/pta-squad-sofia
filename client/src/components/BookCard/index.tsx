@@ -57,7 +57,7 @@ export default function BookCard({ book, onClick, onDecrement, onLoan }: BookCar
           {author}
         </p>
         
-        <p className="text-[rgba(0,195,137,1)] text-xs font-bold uppercase mt-1">
+        <p className="text-[rgba(0,195,137,1)] text-xs font-bold mt-1">
           {formattedCategory}
         </p>
         
