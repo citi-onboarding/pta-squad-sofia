@@ -59,33 +59,35 @@ export default function BookCard({ book, onClick, onDecrement, onLoan }: BookCar
         </p>
       </div>
 
-      <div className="grid grid-cols-[115px_147px_66px] gap-2 mt-auto">
-        <button 
-          onClick={onClick}
-          className="flex items-center justify-center gap-[7px] w-28.75 h-[47.33px] bg-transparent border-[1.67px] border-solid border-[rgba(0,195,137,1)] rounded-lg cursor-pointer transition-all duration-200 hover:bg-[rgba(0,195,137,0.08)] hover:shadow-md active:scale-95 active:bg-[rgba(0,195,137,0.15)]"> 
-          <Eye  size={18} className="text-[rgba(0,195,137,1)]" />
-          <span className="font-medium text-[rgba(0,195,137,1)] text-base leading-6">Ver</span>
-        </button>
+      <div className="flex flex-col gap-2 mt-auto md:flex-row">
         <button
-          onClick={onLoan}
-          disabled={availableQuantity === 0}
-          className={`flex items-center gap-[6px] justify-center w-36.75 h-[47.33px] rounded-lg 
-            transition-all duration-200 active:scale-95
-            ${availableQuantity === 0 
-              ? "bg-gray-400 cursor-not-allowed" 
-              : "bg-[rgba(0,195,137,1)] cursor-pointer hover:bg-[rgba(0,175,127,1)] hover:shadow-md active:brightness-90"
-            }`}
-        >
-          <Bookmark size={18} className="text-white" />
-          <span className="font-medium text-white text-base leading-6">
-            {availableQuantity === 0 ? "Esgotado" : "Emprestar"}
-          </span>
+          onClick={onClick}
+          className="flex w-full items-center justify-center gap-[7px] h-[47.33px] bg-transparent border-[1.67px] border-solid border-[rgba(0,195,137,1)] rounded-lg cursor-pointer transition-all duration-200 hover:bg-[rgba(0,195,137,0.08)] hover:shadow-md active:scale-95 active:bg-[rgba(0,195,137,0.15)] md:w-auto md:grow-[115] md:basis-0 md:min-w-0">
+          <Eye  size={18} className="text-[rgba(0,195,137,1)] shrink-0" />
+          <span className="font-medium text-[rgba(0,195,137,1)] text-base leading-6 truncate">Ver</span>
         </button>
-        <button 
-          onClick={() => onDecrement(book.id)}
-          className="flex items-center justify-center  w-16.5 h-[47.33px] bg-[rgba(239,68,68,1)] rounded-lg cursor-pointer transition-all duration-200 hover:shadow-lg active:scale-90 active:brightness-90">
-          <Trash2 size={18} className="text-[rgba(255,255,255,1)]" />
-        </button>
+        <div className="flex w-full flex-row gap-2 md:w-auto md:grow-[147] md:basis-0 md:min-w-0">
+          <button
+            onClick={onLoan}
+            disabled={availableQuantity === 0}
+            className={`flex flex-1 min-w-0 items-center gap-[6px] justify-center h-[47.33px] rounded-lg
+              transition-all duration-200 active:scale-95
+              ${availableQuantity === 0
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-[rgba(0,195,137,1)] cursor-pointer hover:bg-[rgba(0,175,127,1)] hover:shadow-md active:brightness-90"
+              }`}
+          >
+            <Bookmark size={18} className="text-white shrink-0" />
+            <span className="font-medium text-white text-base leading-6 truncate">
+              {availableQuantity === 0 ? "Esgotado" : "Emprestar"}
+            </span>
+          </button>
+          <button
+            onClick={() => onDecrement(book.id)}
+            className="flex shrink-0 items-center justify-center w-[66px] h-[47.33px] bg-[rgba(239,68,68,1)] rounded-lg cursor-pointer transition-all duration-200 hover:shadow-lg active:scale-90 active:brightness-90">
+            <Trash2 size={18} className="text-[rgba(255,255,255,1)]" />
+          </button>
+        </div>
       </div>
     </article>
   );
