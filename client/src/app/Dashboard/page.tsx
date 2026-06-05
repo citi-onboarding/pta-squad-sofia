@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { RecentLoansTable } from "@/components/RecentLoansTable/recentLoansTable";
 import { CategoryChart } from "@/components/CategoryChart";
 import { MetricCard } from "@/components/MetricCard";
-import { BookOpen, Clock, AlertCircle } from "lucide-react"; 
-import { api } from "@/lib/api"; 
+import { BookOpen, Clock, AlertCircle } from "lucide-react";
+import { api } from "@/lib/api";
 import PageContainer from "@/components/PageContainer";
+import { categoryMap } from "@/utils/dictionaries";
 
 interface DashboardResponse {
   totalLivros: number;
@@ -22,35 +23,27 @@ interface DashboardResponse {
     emailCliente: string;
     dataPrevistaDevolucao: string;
     createdAt: string;
-    status: "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO"; 
+    status: "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO";
     livro: {
-      titulo: string; 
+      titulo: string;
     };
   }[];
 }
 
-const mockBookData = {
-  title: "O Senhor dos Anéis",
-  author: "J.R.R. Tolkien",
-  isbn: "978-8533613379",
-  publisher: "Martins Fontes",
-  category: "Romance",
-  year: 2001,
-  totalQuantity: 5,
-  availableQuantity: 3,
-};
-
 export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
-  
-  const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
+
+  const [dashboardData, setDashboardData] =
+    useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchDashboardData() {
       try {
         setLoading(true);
+
         const response = await api.get<DashboardResponse>("/dashboard");
+
         setDashboardData(response.data);
       } catch (error) {
         console.error("Erro ao buscar dados do dashboard:", error);
@@ -65,57 +58,69 @@ export default function Home() {
   if (loading || !dashboardData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500 font-medium">Carregando dados da dashboard...</p>
+        <p className="text-gray-500 font-medium">
+          Carregando dados da dashboard...
+        </p>
       </div>
     );
   }
 
   const formattedLoans = dashboardData.ultimosEmprestimos.map((loan) => ({
     id: loan.id,
-    bookTitle: loan.livro.titulo, 
+    bookTitle: loan.livro.titulo,
     clientName: loan.nomeCliente,
     rentalDate: loan.createdAt,
     returnDate: loan.dataPrevistaDevolucao,
-    status: loan.status === "EM_ANDAMENTO" && new Date(loan.dataPrevistaDevolucao) < new Date() 
-      ? ("ATRASADO" as const) 
-      : (loan.status as "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO"),
+    status:
+      loan.status === "EM_ANDAMENTO" &&
+      new Date(loan.dataPrevistaDevolucao) < new Date()
+        ? ("ATRASADO" as const)
+        : (loan.status as "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO"),
+  }));
+
+  const formattedChartData = dashboardData.contagemPorCategoria.map((item) => ({
+    ...item,
+    categoria: categoryMap[item.categoria.toUpperCase()] || item.categoria,
   }));
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center">
       <PageContainer>
         <div className="mt-8 flex flex-col gap-8 mb-12">
-          
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-sm text-gray-400">Visão geral da biblioteca</p>
+            <p className="text-sm text-gray-400">
+              Visão geral da biblioteca
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-4 w-full">
-            <MetricCard 
-              title="Total de Livros" 
-              value={dashboardData.totalLivros.toLocaleString("pt-BR")} 
-              icon={BookOpen} 
-              iconColorClass="text-[#00C389]" 
+            <MetricCard
+              title="Total de Livros"
+              value={dashboardData.totalLivros.toLocaleString("pt-BR")}
+              icon={BookOpen}
+              iconColorClass="text-[#00C389]"
               iconBgColorClass="bg-[#00C389]/10"
             />
-            <MetricCard 
-              title="Empréstimos Ativos" 
-              value={dashboardData.emprestimosAtivos.toString()} 
-              icon={Clock} 
-              iconColorClass="text-[#00C389]" 
+
+            <MetricCard
+              title="Empréstimos Ativos"
+              value={dashboardData.emprestimosAtivos.toString()}
+              icon={Clock}
+              iconColorClass="text-[#00C389]"
               iconBgColorClass="bg-[#00C389]/10"
             />
-            <MetricCard 
-              title="Livros Atrasados" 
-              value={dashboardData.emprestimosAtrasados.toString()} 
-              icon={AlertCircle} 
-              iconColorClass="text-[#FF5B5B]" 
+
+            <MetricCard
+              title="Livros Atrasados"
+              value={dashboardData.emprestimosAtrasados.toString()}
+              icon={AlertCircle}
+              iconColorClass="text-[#FF5B5B]"
               iconBgColorClass="bg-[#FF5B5B]/10"
             />
           </div>
 
-          <CategoryChart data={dashboardData.contagemPorCategoria} />
+          <CategoryChart data={formattedChartData} />
 
           <RecentLoansTable loans={formattedLoans} />
         </div>
