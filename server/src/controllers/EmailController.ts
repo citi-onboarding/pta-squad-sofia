@@ -10,17 +10,19 @@ export async function sendReminderEmail(req: Request, res: Response) {
 
     const transporter = nodemailer.createTransport({
         host: process.env.GMAIL_HOST,
-        port: 587,
+        port: 2525,
         secure: false,
         auth: {
             user: process.env.GMAIL_USER,
             pass: process.env.GMAIL_PASS,
         },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
     });
 
     try {
         await transporter.sendMail({
-            from: process.env.GMAIL_USER,
+            from: process.env.GMAIL_FROM ?? process.env.GMAIL_USER,
             to: customerEmail,
             subject: "Lembrete de devolução",
             html: `
@@ -53,7 +55,7 @@ export async function sendReminderEmail(req: Request, res: Response) {
                                 Não esqueça de devolvê-lo na biblioteca para evitar multas.
                               </p>
                               <div style="text-align:center; margin:28px 0;">
-                                <a href="http://localhost:3000/"
+                                <a href="${process.env.CLIENT_URL ?? 'http://localhost:3000'}"
                                   style="display:inline-block; background:#2ecc8b; color:#fff;
                                          text-decoration:none; padding:14px 32px; border-radius:999px;
                                          font-weight:700; font-size:14px;">

@@ -43,13 +43,13 @@ export default function BookCard({ book, onClick, onDecrement, onLoan }: BookCar
   return (
     <article className="flex flex-col h-full w-full gap-6 rounded-lg bg-white p-4 shadow-lg">
       <img 
-        className="w-full h-auto rounded-md bg-gray-200"
+        className="w-full h-[340px] object-cover rounded-md"
         src={imageSource.src}
         alt={`Capa do livro ${title}`}
         /> 
 
       <div className="flex flex-col gap-2">
-        <h2 className="text-[rgba(30,30,30,1)] text-lg font-medium leading-6.75">{title}</h2>
+        <h2 className="text-[rgba(30,30,30,1)] text-lg font-medium leading-6.75 line-clamp-2 h-[54px]">{title}</h2>
         <p className="text-[rgba(113,113,130,1)] text-base leading-6">{author}</p>
         
         <p className="text-[rgba(0,195,137,1)] text-sm font-bold leading-5">{formattedCategory}</p>
