@@ -1,13 +1,13 @@
 "use client";
 import { Eye, Trash2, Bookmark } from 'lucide-react';
 import { Book } from "@/types/Book";
+import { categoryMap } from "@/utils/dictionaries";
 
 import imgTecnologia from '../../assets/images/Tecnologia.png';
 import imgInfantil from '../../assets/images/Infantil.png';
 import imgRomance from '../../assets/images/Romance.png';
 import imgHistoria from '../../assets/images/Historia.png';
 import imgCiencias from '../../assets/images/Ciencias.png';
-
 
 interface BookCardProps {
   book: Book;
@@ -22,6 +22,7 @@ export default function BookCard({ book, onClick, onDecrement, onLoan }: BookCar
   const category = book.category || (book as any).categoria || "";
   const availableQuantity = book.availableQuantity ?? (book as any).quantidadeDisponivel ?? 0;
   
+  const formattedCategory = categoryMap[category.toUpperCase()] || category;
 
   const normalizedCategory = category.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   let imageSource;
@@ -40,26 +41,25 @@ export default function BookCard({ book, onClick, onDecrement, onLoan }: BookCar
   }
 
   return (
-    <article className="flex w-full flex-col gap-6 rounded-lg bg-white p-4 shadow-lg">
-      {/* Imagem do livro */}
+    <article className="flex flex-col h-full w-full gap-6 rounded-lg bg-white p-4 shadow-lg">
       <img 
         className="w-full h-auto rounded-md bg-gray-200"
         src={imageSource.src}
         alt={`Capa do livro ${title}`}
         /> 
 
-      {/* Informações do livro */}
       <div className="flex flex-col gap-2">
         <h2 className="text-[rgba(30,30,30,1)] text-lg font-medium leading-6.75">{title}</h2>
         <p className="text-[rgba(113,113,130,1)] text-base leading-6">{author}</p>
-        <p className="text-[rgba(0,195,137,1)] text-sm font-bold leading-5">{category}</p>
+        
+        <p className="text-[rgba(0,195,137,1)] text-sm font-bold leading-5">{formattedCategory}</p>
+        
         <p className="text-[rgba(30,30,30,1)] text-sm leading-5">
           <span className="font-medium">Disponível: </span> {availableQuantity} unidade(s)
         </p>
       </div>
 
-        {/* Botões */}
-      <div className="grid grid-cols-[115px_147px_66px] gap-2">
+      <div className="grid grid-cols-[115px_147px_66px] gap-2 mt-auto">
         <button 
           onClick={onClick}
           className="flex items-center justify-center gap-[7px] w-28.75 h-[47.33px] bg-transparent border-[1.67px] border-solid border-[rgba(0,195,137,1)] rounded-lg cursor-pointer transition-all duration-200 hover:bg-[rgba(0,195,137,0.08)] hover:shadow-md active:scale-95 active:bg-[rgba(0,195,137,0.15)]"> 
@@ -90,5 +90,3 @@ export default function BookCard({ book, onClick, onDecrement, onLoan }: BookCar
     </article>
   );
 }
-
-  

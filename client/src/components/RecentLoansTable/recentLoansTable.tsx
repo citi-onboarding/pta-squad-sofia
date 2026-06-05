@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableBody,
@@ -5,35 +7,36 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { statusMap } from "@/utils/dictionaries";
 
 interface Loan {
-  id: string
-  bookTitle: string
-  clientName: string
-  rentalDate: string
-  returnDate: string
-  status: "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO"
+  id: string;
+  bookTitle: string;
+  clientName: string;
+  rentalDate: string;
+  returnDate: string;
+  status: "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO";
 }
 
-const statusConfig = {
+const statusStyles = {
   EM_ANDAMENTO: {
-    label: "Em andamento",
-    className: "border-[#FFDF20] bg-[#FEF9C2] text-[#A65F00] hover:bg-[#FEF9C2]",
+    className:
+      "border-[#FFDF20] bg-[#FEF9C2] text-[#A65F00] hover:bg-[#FEF9C2]",
   },
   ATRASADO: {
-    label: "Atrasado",
-    className: "border-[#EF44444D] bg-[#EF444433] text-[#EF4444] hover:bg-[#EF444433]",
+    className:
+      "border-[#EF44444D] bg-[#EF444433] text-[#EF4444] hover:bg-[#EF444433]",
   },
   DEVOLVIDO: {
-    label: "Devolvido",
-    className: "border-[#00C3894D] bg-[#00C38933] text-[#00C389] hover:bg-[#00C38933]",
+    className:
+      "border-[#00C3894D] bg-[#00C38933] text-[#00C389] hover:bg-[#00C38933]",
   },
-}
+};
 
 interface RecentLoansTableProps {
-  loans: Loan[]
+  loans: Loan[];
 }
 
 export function RecentLoansTable({ loans }: RecentLoansTableProps) {
@@ -44,7 +47,7 @@ export function RecentLoansTable({ loans }: RecentLoansTableProps) {
     } catch {
       return dateString;
     }
-  }
+  };
 
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-3 sm:p-6 shadow-md w-full">
@@ -59,55 +62,59 @@ export function RecentLoansTable({ loans }: RecentLoansTableProps) {
               <TableHead className="px-2 font-bold text-zinc-900 h-11 whitespace-nowrap text-xs sm:text-sm">
                 Livro
               </TableHead>
+
               <TableHead className="px-2 font-bold text-zinc-900 h-11 whitespace-nowrap text-xs sm:text-sm">
                 Cliente
               </TableHead>
+
               <TableHead className="px-2 font-bold text-zinc-900 h-11 whitespace-nowrap text-xs sm:text-sm">
                 Locação
               </TableHead>
+
               <TableHead className="px-2 font-bold text-zinc-900 h-11 whitespace-nowrap text-xs sm:text-sm">
                 Devolução
               </TableHead>
+
               <TableHead className="px-2 font-bold text-zinc-900 h-11 whitespace-nowrap text-xs sm:text-sm">
                 Status
               </TableHead>
             </TableRow>
           </TableHeader>
-          
+
           <TableBody>
             {loans.map((loan) => (
-              <TableRow 
-                key={loan.id} 
+              <TableRow
+                key={loan.id}
                 className="hover:bg-zinc-50/50 border-b border-gray-100 transition-colors duration-200"
               >
-                <TableCell 
-                  className="px-2 py-3 font-medium text-zinc-700 text-xs sm:text-sm max-w-[120px] sm:max-w-[200px] md:max-w-[300px] lg:max-w-[500px] xl:max-w-[600px] truncate" 
+                <TableCell
+                  className="px-2 py-3 font-medium text-zinc-700 text-xs sm:text-sm max-w-[120px] sm:max-w-[200px] md:max-w-[300px] lg:max-w-[500px] xl:max-w-[600px] truncate"
                   title={loan.bookTitle}
                 >
                   {loan.bookTitle}
                 </TableCell>
-                
-                <TableCell 
-                  className="px-2 py-3 text-zinc-600 text-xs sm:text-sm max-w-[80px] sm:max-w-[150px] md:max-w-[250px] lg:max-w-none truncate" 
+
+                <TableCell
+                  className="px-2 py-3 text-zinc-600 text-xs sm:text-sm max-w-[80px] sm:max-w-[150px] md:max-w-[250px] lg:max-w-none truncate"
                   title={loan.clientName}
                 >
                   {loan.clientName}
                 </TableCell>
-                
+
                 <TableCell className="px-2 py-3 text-zinc-600 text-xs sm:text-sm whitespace-nowrap">
                   {formatDate(loan.rentalDate)}
                 </TableCell>
-                
+
                 <TableCell className="px-2 py-3 text-zinc-600 text-xs sm:text-sm whitespace-nowrap">
                   {formatDate(loan.returnDate)}
                 </TableCell>
-                
+
                 <TableCell className="px-2 py-3 whitespace-nowrap">
-                  <Badge 
-                    variant="outline" 
-                    className={`rounded-full px-2 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-medium border ${statusConfig[loan.status].className}`}
+                  <Badge
+                    variant="outline"
+                    className={`rounded-full px-2 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-medium border ${statusStyles[loan.status].className}`}
                   >
-                    {statusConfig[loan.status].label}
+                    {statusMap[loan.status] || loan.status}
                   </Badge>
                 </TableCell>
               </TableRow>
@@ -116,5 +123,5 @@ export function RecentLoansTable({ loans }: RecentLoansTableProps) {
         </Table>
       </div>
     </div>
-  )
+  );
 }
