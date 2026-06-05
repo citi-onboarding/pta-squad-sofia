@@ -42,7 +42,21 @@ export const deleteBookRepository = async (bookId: string) => {
   return await prisma.$transaction(async (tx) => {
     const book = await tx.livro.findUnique({
       where: { id: bookId },
-      select: { quantidadeTotal: true, quantidadeDisponivel: true }
+      select: { 
+        quantidadeTotal: true,
+        quantidadeDisponivel: true,
+        _count : {
+          select: {
+            emprestimo: {
+              where: {
+                status: {
+                  in: ["EM_ANDAMENTO", "ATRASADO"]
+                }
+              }
+            }
+          }
+        }
+       }
     });
 
     if (!book) throw new Error("Livro não encontrado");
@@ -55,6 +69,10 @@ export const deleteBookRepository = async (bookId: string) => {
           quantidadeDisponivel: { decrement: 1 }
         }
       });
+    }
+
+    if (book._count.emprestimo > 0) {
+      throw new Error("Não foi possível deletar o livro. Existem exemplares emprestados ou em atraso.")
     }
 
     await tx.emprestimo.deleteMany({
