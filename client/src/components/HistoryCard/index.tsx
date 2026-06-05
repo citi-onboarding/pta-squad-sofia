@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Mail } from "lucide-react";
 import { Loan } from "@/types/Loan";
+import { statusMap } from "@/utils/dictionaries";
 
 interface HistoryCardProps {
     loan: Loan;
@@ -81,57 +82,57 @@ export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
     const dueDate = new Date(loan.dueDate);
 
     return (
-        <article className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-            <div className="flex flex-col gap-3">
+        <article className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-lg border border-gray-200 bg-white p-4 sm:p-5 shadow-sm gap-4 w-full">
+            
+            <div className="flex flex-col gap-2 w-full overflow-hidden">
 
-                {/* Header */}
-                <header className="flex items-center gap-3">
-                    <h2 className="text-lg font-medium text-gray-900">
+                <header className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <h2 className="text-lg font-medium text-gray-900 truncate max-w-[200px] sm:max-w-xs">
                         {loan.customerName}
                     </h2>
 
                     <span
                         className={`
-                            rounded-full border px-3 py-1 text-xs font-medium
+                            rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap
                             ${statusStyles[loan.status]}
                         `}
                     >
-                        {loan.status}
+                        {statusMap[loan.status]}
                     </span>
                 </header>
 
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 truncate w-full">
                     {loan.customerEmail}
                 </p>
 
-                <footer className="flex items-center gap-4 text-sm">
+                <footer className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm mt-1">
                     <div>
-                        <span>Locação: </span>
-                        <strong>
+                        <span className="text-gray-500">Locação: </span>
+                        <strong className="text-gray-900">
                             {rentalDate.toLocaleDateString("pt-BR")}
                         </strong>
                     </div>
 
                     <div>
-                        <span>Previsão: </span>
-                        <strong>
+                        <span className="text-gray-500">Previsão: </span>
+                        <strong className="text-gray-900">
                             {dueDate.toLocaleDateString("pt-BR")}
                         </strong>
                     </div>
                 </footer>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto shrink-0 mt-2 sm:mt-0">
 
                 {loan.status === "ATRASADO" && (
                     <button
                         type="button"
                         onClick={sendReminder}
                         disabled={sendingReminder}
-                        className="flex items-center gap-2 rounded-lg border border-[#00C389] px-5 py-3 text-[#00C389] transition-transform duration-100 hover:bg-emerald-50 active:scale-95"
+                        className="flex w-full sm:w-auto justify-center items-center gap-2 rounded-lg border border-[#00C389] px-4 py-2.5 text-[#00C389] transition-transform duration-100 hover:bg-emerald-50 active:scale-95"
                     >
                         <Mail size={18} />
-                        {sendingReminder ? "Enviando..." : "Enviar Lembrete"}
+                        {sendingReminder ? "Enviando..." : "Enviar lembrete"}
                     </button>
                 )}
 
@@ -139,7 +140,7 @@ export default function HistoryCard({ loan, onReturn }: HistoryCardProps) {
                     <button
                         type="button"
                         onClick={markAsReturned}
-                        className="flex items-center gap-2 rounded-lg bg-[#00C389] px-5 py-3 text-white transition-transform duration-100 hover:opacity-90 active:scale-95"
+                        className="flex w-full sm:w-auto justify-center items-center gap-2 rounded-lg bg-[#00C389] px-4 py-2.5 text-white transition-transform duration-100 hover:opacity-90 active:scale-95"
                     >
                         <Check size={18} />
                         Marcar devolução

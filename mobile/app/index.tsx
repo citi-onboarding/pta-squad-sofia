@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { 
   View, 
   Text, 
@@ -10,24 +10,66 @@ import { Search } from "lucide-react-native";
 import { BookCardMobile } from "../src/components/BookCardMobile";
 import { Image } from "react-native";
 
+const API_URL = "http://172.22.66.221:3001";
+
 type BookStatus = "RETURNED" | "IN_PROGRESS" | "OVERDUE";
 
-interface BookData {
+interface Loan {
   id: string;
-  title: string;
-  category: string;
-  status: BookStatus;
-  loanDate: string;
+  customerName: string;
+  customerEmail: string;
+  rentalDate: string;
   dueDate: string;
-}
+  status: string;
 
-const MOCK_DATA: BookData[] = [
-  { id: '1', title: 'Dom Casmurro', category: 'romance', status: 'RETURNED', loanDate: '02/03/2026', dueDate: '12/03/2026' },
-  { id: '2', title: 'Clean Code', category: 'tecnologia', status: 'IN_PROGRESS', loanDate: '15/04/2026', dueDate: '30/04/2026' },
-];
+  book: {
+    id: string;
+    title: string;
+    author: string;
+  };
+}
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [filteredLoans, setFilteredLoans] = useState<Loan[]>([]);
+
+  useEffect(() => {
+    fetchLoans();
+  }, []);
+
+  async function fetchLoans() {
+    try {
+      const response = await fetch(
+        `${API_URL}/emprestimos`
+      );
+
+      const data = await response.json();
+
+      setLoans(data);
+      setFilteredLoans(data);
+    } catch (error) {
+      console.error("Erro ao buscar empréstimos:", error);
+    }
+  }
+
+  async function handleSearch() {
+    if (!searchQuery.trim()) {
+      setFilteredLoans(loans);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API_URL}/emprestimos?cliente=${encodeURIComponent(searchQuery)}`
+      );
+
+      const data = await response.json();
+      setFilteredLoans(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
@@ -58,27 +100,36 @@ export default function App() {
           />
         </View>
 
-        <TouchableOpacity className="bg-[#00C988] h-12 rounded-lg items-center justify-center mb-6">
+        <TouchableOpacity
+          className="bg-[#00C988] h-12 rounded-lg items-center justify-center mb-6"
+          onPress={handleSearch}
+        >
           <Text className="text-white text-base font-medium">Buscar</Text>
         </TouchableOpacity>
 
         <Text className="text-sm text-gray-500 mb-4">
-          {MOCK_DATA.length} empréstimo(s) encontrado(s)
+          {filteredLoans.length} empréstimo(s) encontrado(s)
         </Text>
 
         <FlatList
-          data={MOCK_DATA}
+          data={filteredLoans}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 24, alignItems: 'center' }}
           ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
           renderItem={({ item }) => (
-            <BookCardMobile 
-              title={item.title} 
-              category={item.category}
-              status={item.status} 
-              loanDate={item.loanDate} 
-              dueDate={item.dueDate} 
+            <BookCardMobile
+              title={item.book.title}
+              category={item.book.author}
+              status={
+                item.status === "DEVOLVIDO"
+                  ? "RETURNED"
+                  : item.status === "ATRASADO"
+                  ? "OVERDUE"
+                  : "IN_PROGRESS"
+              }
+              loanDate={new Date(item.rentalDate).toLocaleDateString("pt-BR")}
+              dueDate={new Date(item.dueDate).toLocaleDateString("pt-BR")}
             />
           )}
         />
