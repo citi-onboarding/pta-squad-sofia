@@ -10,6 +10,8 @@ import { Search } from "lucide-react-native";
 import { BookCardMobile } from "../src/components/BookCardMobile";
 import { Image } from "react-native";
 
+const API_URL = "http://172.22.66.221:3001";
+
 type BookStatus = "RETURNED" | "IN_PROGRESS" | "OVERDUE";
 
 interface Loan {
@@ -39,7 +41,7 @@ export default function App() {
   async function fetchLoans() {
     try {
       const response = await fetch(
-        "http://172.22.47.7:3001/emprestimos"
+        `${API_URL}/emprestimos`
       );
 
       const data = await response.json();
@@ -59,7 +61,7 @@ export default function App() {
 
     try {
       const response = await fetch(
-        `http://172.22.47.7:3001/emprestimos?cliente=${encodeURIComponent(searchQuery)}`
+        `${API_URL}/emprestimos?cliente=${encodeURIComponent(searchQuery)}`
       );
 
       const data = await response.json();
