@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import BookDetails from "@/components/BookDetails";
 import { RecentLoansTable } from "@/components/RecentLoansTable/recentLoansTable";
 import { CategoryChart } from "@/components/CategoryChart";
 import { MetricCard } from "@/components/MetricCard";
-import { BookOpen, Clock, AlertCircle } from "lucide-react"; 
-import { api } from "@/lib/api"; 
+import { BookOpen, Clock, AlertCircle } from "lucide-react";
+import { api } from "@/lib/api";
+import PageContainer from "@/components/PageContainer";
+import { categoryMap } from "@/utils/dictionaries";
 
 interface DashboardResponse {
   totalLivros: number;
@@ -22,22 +23,28 @@ interface DashboardResponse {
     emailCliente: string;
     dataPrevistaDevolucao: string;
     createdAt: string;
-    status: "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO"; 
+    status: "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO";
     livro: {
-      titulo: string; 
+      titulo: string;
     };
   }[];
 }
 
 export default function Home() {
   const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const [dashboardData, setDashboardData] =
+    useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchDashboardData() {
       try {
         setLoading(true);
+
         const response = await api.get<DashboardResponse>("/dashboard");
+
         setDashboardData(response.data);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
@@ -60,13 +67,20 @@ export default function Home() {
   // maps properties to match the required format for RecentLoansTable
   const formattedLoans = dashboardData.ultimosEmprestimos.map((loan) => ({
     id: loan.id,
-    bookTitle: loan.livro.titulo, 
+    bookTitle: loan.livro.titulo,
     clientName: loan.nomeCliente,
     rentalDate: loan.createdAt,
     returnDate: loan.dataPrevistaDevolucao,
-    status: loan.status === "EM_ANDAMENTO" && new Date(loan.dataPrevistaDevolucao) < new Date() 
-      ? ("ATRASADO" as const) 
-      : (loan.status as "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO"),
+    status:
+      loan.status === "EM_ANDAMENTO" &&
+      new Date(loan.dataPrevistaDevolucao) < new Date()
+        ? ("ATRASADO" as const)
+        : (loan.status as "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO"),
+  }));
+
+  const formattedChartData = dashboardData.contagemPorCategoria.map((item) => ({
+    ...item,
+    categoria: categoryMap[item.categoria.toUpperCase()] || item.categoria,
   }));
 
   const formattedChartData = dashboardData.contagemPorCategoria.map((item) => ({

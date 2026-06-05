@@ -34,7 +34,7 @@ export default function BookButton({ category, selected, onClick }: BookButtonPr
       onClick={onClick}
       type="button"
       className={`
-        flex flex-col items-center w-36 p-5 gap-2
+        flex flex-col items-center w-full max-w-[144px] p-5 gap-2
         border-[1.67px] rounded-lg
         transition-all duration-200
         hover:bg-[#E8FFF7]

@@ -4,6 +4,7 @@ import HistoryCard from "../HistoryCard";
 import { X } from "lucide-react";
 import { Book } from "@/types/Book";
 import { Loan } from "@/types/Loan"
+import { categoryMap } from "@/utils/dictionaries";
 
 import imgTecnologia from '../../assets/images/Tecnologia.png';
 import imgInfantil from '../../assets/images/Infantil.png';
@@ -15,10 +16,9 @@ const categoryImages: Record<string, { src: string }> = {
     "TECNOLOGIA": imgTecnologia,
     "INFANTIL": imgInfantil,
     "ROMANCE": imgRomance,
-    "HISTÓRIA": imgHistoria,
-    "CIÊNCIAS": imgCiencias,
+    "HISTORIA": imgHistoria,
+    "CIENCIAS": imgCiencias,
 };
-
 
 interface BookDetailsProps {
     isOpen: boolean;
@@ -33,7 +33,7 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
     useEffect(() => {
         async function fetchLoans() {
             try {
-            const response = await fetch("http://localhost:3001/emprestimos"); 
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/emprestimos`);
             const data = await response.json();
             setLoans(Array.isArray(data) ? data : data.emprestimos ?? []);
             } catch (error) {
@@ -45,39 +45,36 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
         setBookDetails(book);
     }, [book]);
 
-            async function handleReturnLoan(loanId: string) {
-            try {
+    async function handleReturnLoan(loanId: string) {
+        try {
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/emprestimos/${loanId}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        status: "DEVOLVIDO"
+                    }),
+                }
+            );
 
-                const response = await fetch(
-                    `http://localhost:3001/emprestimos/${loanId}`,
-                    {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            status: "DEVOLVIDO"
-                        }),
-                    }
+            if (response.ok) {
+                setLoans((prevLoans) =>
+                    prevLoans.map((loan) =>
+                        loan.id === loanId
+                            ? { ...loan, status: "DEVOLVIDO" }
+                            : loan
+                    )
                 );
 
-                if (response.ok) {
-
-                    setLoans((prevLoans) =>
-                        prevLoans.map((loan) =>
-                            loan.id === loanId
-                                ? { ...loan, status: "DEVOLVIDO" }
-                                : loan
-                        )
-                    );
-
-                    await refreshBookData();
-                }
-
-            } catch (error) {
-                console.error(error);
+                await refreshBookData();
             }
+        } catch (error) {
+            console.error("Erro ao devolver empréstimo:", error);
         }
+    }
 
     async function refreshBookData() {
         if (!bookDetails) return;
@@ -85,7 +82,7 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
         try {
 
             const response = await fetch(
-                `http://localhost:3001/livros/${bookDetails.id}`
+                `${process.env.NEXT_PUBLIC_API_URL}/livros/${bookDetails.id}`
             );
 
             const updatedBook = await response.json();
@@ -97,7 +94,6 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
         }
     }
 
-
     if (!isOpen || !bookDetails) return null;
 
     const filteredLoans = loans.filter(
@@ -106,11 +102,12 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
 
     const categoryImage = categoryImages[bookDetails.category] ?? imgTecnologia;
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-16">
-            <div className="flex w-full max-w-4xl max-h-full flex-col gap-6 overflow-y-auto rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+    const formattedCategory = categoryMap[bookDetails.category] || bookDetails.category;
 
-                {/* Header */}
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 sm:p-16">
+            <div className="flex w-full max-w-4xl max-h-full flex-col gap-6 overflow-y-auto rounded-lg border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
+
                 <header className="flex items-center justify-between border-b border-gray-100 pb-4">
                     <h1 className="text-xl font-semibold text-gray-900">Detalhes do livro</h1>
                     <button onClick={onClose} className="rounded-full p-2 text-gray-500 transition-transform duration-100 hover:bg-gray-100 active:scale-95">
@@ -118,44 +115,43 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
                     </button>
                 </header>
 
-                {/* Book Informations */}
-                <section className="flex gap-8">
+                <section className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-center sm:items-start">
                     <img
                         src={categoryImage.src}
                         alt={bookDetails.category}
-                        className="h-32 w-24 flex-shrink-0 rounded-lg object-cover"
+                        className="h-40 w-32 sm:h-32 sm:w-24 flex-shrink-0 rounded-lg object-cover"
                     />
 
                     <div className="flex w-full flex-col gap-6">
-                        <div>
-                            <h2 className="text-2xl font-semibold text-gray-900">{bookDetails.title}</h2>
+                        <div className="text-center sm:text-left">
+                            <h2 className="text-2xl font-semibold text-gray-900 break-words">{bookDetails.title}</h2>
                             <p className="text-gray-500">{bookDetails.author}</p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-y-4 text-sm">
-                            <div>
+                        <div className="grid grid-cols-2 gap-4 sm:gap-y-4 text-sm w-full">
+                            <div className="flex flex-col overflow-hidden">
                                 <p className="text-gray-500">ISBN</p>
-                                <p className="font-medium text-gray-900">{bookDetails.isbn}</p>
+                                <p className="font-medium text-gray-900 truncate" title={bookDetails.isbn}>{bookDetails.isbn}</p>
                             </div>
-                            <div>
+                            <div className="flex flex-col overflow-hidden">
                                 <p className="text-gray-500">Categoria</p>
-                                <p className="font-medium text-[#00C389]">{bookDetails.category}</p>
+                                <p className="font-medium text-[#00C389] truncate" title={formattedCategory}>{formattedCategory}</p>
                             </div>
-                            <div>
+                            <div className="flex flex-col overflow-hidden">
                                 <p className="text-gray-500">Editora</p>
-                                <p className="font-medium text-gray-900">{bookDetails.publisher}</p>
+                                <p className="font-medium text-gray-900 truncate" title={bookDetails.publisher}>{bookDetails.publisher}</p>
                             </div>
-                            <div>
+                            <div className="flex flex-col overflow-hidden">
                                 <p className="text-gray-500">Ano</p>
                                 <p className="font-medium text-gray-900">{bookDetails.year}</p>
                             </div>
-                            <div>
-                                <p className="text-gray-500">Quantidade Total</p>
-                                <p className="font-medium text-gray-900">{bookDetails.totalQuantity} unidades</p>
+                            <div className="flex flex-col">
+                                <p className="text-gray-500 text-xs sm:text-sm">Quantidade Total</p>
+                                <p className="font-medium text-gray-900">{bookDetails.totalQuantity} unid.</p>
                             </div>
-                            <div>
-                                <p className="text-gray-500">Quantidade Disponível</p>
-                                <p className="font-medium text-[#00C389]">{bookDetails.availableQuantity} unidades</p>
+                            <div className="flex flex-col">
+                                <p className="text-gray-500 text-xs sm:text-sm">Quantidade Disponível</p>
+                                <p className="font-medium text-[#00C389]">{bookDetails.availableQuantity} unid.</p>
                             </div>
                         </div>
                     </div>
@@ -163,11 +159,10 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
 
                 <div className="my-2 h-px w-full bg-gray-100"></div>
 
-                {/* History section */}
                 <section className="flex flex-col gap-4">
                     <h3 className="text-lg font-semibold text-gray-900">Histórico de Empréstimos</h3>
                     {filteredLoans.length > 0 ? (
-                        <div className="flex max-h-[300px] flex-col gap-3 overflow-y-auto pr-2">
+                        <div className="flex max-h-[300px] flex-col gap-3 overflow-y-auto pr-2 pb-2">
                             {filteredLoans.map((loan: Loan) => {
                                 return (
                                     <HistoryCard
@@ -185,5 +180,4 @@ export default function BookDetails({ isOpen, onClose, book}: BookDetailsProps) 
             </div>
         </div>
     )
-
 }
