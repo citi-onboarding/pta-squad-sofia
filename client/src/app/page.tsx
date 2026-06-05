@@ -46,25 +46,31 @@ export default function Home() {
         method: "PATCH",
       });
 
-      if (response.ok) {
-        setBooks((prevBooks) => {
-          const book = prevBooks.find((b) => b.id === id);
-          if (!book || (book.totalQuantity ?? 1) <= 1) {
-            return prevBooks.filter((b) => b.id !== id);
-          }
-          return prevBooks.map((b) =>
-            b.id === id
-              ? {
-                  ...b,
-                  totalQuantity: (b.totalQuantity ?? 1) - 1,
-                  availableQuantity: Math.max((b.availableQuantity ?? 0) - 1, 0),
-                }
-              : b
-          );
-        });
+      if (!response.ok) {
+        const errorData = await response.json();
+
+        throw new Error(errorData.error || errorData.message || "Erro desconhecido ao tentar deletar o livro.");
       }
-    } catch (error) {
-      console.error(error);
+
+      setBooks((prevBooks) => {
+        const book = prevBooks.find((b) => b.id === id);
+        if (!book || (book.totalQuantity ?? 1) <= 1) {
+          return prevBooks.filter((b) => b.id !== id);
+        }
+        return prevBooks.map((b) =>
+          b.id === id
+            ? {
+                ...b,
+                totalQuantity: (b.totalQuantity ?? 1) - 1,
+                availableQuantity: Math.max((b.availableQuantity ?? 0) - 1, 0),
+              }
+            : b
+        );
+      });
+      
+    } catch (error: any) {
+      console.error("Erro ao deletar/decrementar livro:", error);
+      alert(error.message);
     }
   }
 
@@ -109,7 +115,7 @@ export default function Home() {
 
           {/* Grid Cards*/}
           {filteredBooks.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredBooks.map((book) => (
                 <BookCard 
                   key={book.id}
