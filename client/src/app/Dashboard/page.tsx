@@ -29,20 +29,7 @@ interface DashboardResponse {
   }[];
 }
 
-const mockBookData = {
-  title: "O Senhor dos Anéis",
-  author: "J.R.R. Tolkien",
-  isbn: "978-8533613379",
-  publisher: "Martins Fontes",
-  category: "Romance",
-  year: 2001,
-  totalQuantity: 5,
-  availableQuantity: 3,
-};
-
 export default function Home() {
-  const [isOpen, setIsOpen] = useState(false);
-  
   const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +40,7 @@ export default function Home() {
         const response = await api.get<DashboardResponse>("/dashboard");
         setDashboardData(response.data);
       } catch (error) {
-        console.error("Erro ao buscar dados do dashboard:", error);
+        console.error("Error fetching dashboard data:", error);
       } finally {
         setLoading(false);
       }
@@ -65,11 +52,12 @@ export default function Home() {
   if (loading || !dashboardData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500 font-medium">Carregando dados da dashboard...</p>
+        <p className="text-gray-500 font-medium">Loading dashboard data...</p>
       </div>
     );
   }
 
+  // maps properties to match the required format for RecentLoansTable
   const formattedLoans = dashboardData.ultimosEmprestimos.map((loan) => ({
     id: loan.id,
     bookTitle: loan.livro.titulo, 
@@ -81,15 +69,22 @@ export default function Home() {
       : (loan.status as "EM_ANDAMENTO" | "ATRASADO" | "DEVOLVIDO"),
   }));
 
+  const formattedChartData = dashboardData.contagemPorCategoria.map((item) => ({
+    category: item.categoria,
+    quantity: item.quantidade,
+  }));
+
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center">
       <div className="w-full max-w-[1000px] mt-8 px-4 flex flex-col gap-8 mb-12">
         
+        {/* Title Section */}
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-400">Visão geral da biblioteca</p>
+          <p className="text-sm text-gray-400">Library overview</p>
         </div>
 
+        {/* Metrics Section */}
         <div className="flex flex-wrap gap-4 w-full">
           <MetricCard 
             title="Total de Livros" 
@@ -114,8 +109,10 @@ export default function Home() {
           />
         </div>
 
-        <CategoryChart data={dashboardData.contagemPorCategoria} />
+        {/* Chart Component receiving translated and refactored keys */}
+        <CategoryChart data={formattedChartData} />
 
+        {/* Recent Loans Component */}
         <RecentLoansTable loans={formattedLoans} />
       </div>
     </main>
