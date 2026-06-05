@@ -31,6 +31,7 @@ interface DashboardResponse {
 }
 
 export default function Home() {
+  const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   const [dashboardData, setDashboardData] =
@@ -46,7 +47,7 @@ export default function Home() {
 
         setDashboardData(response.data);
       } catch (error) {
-        console.error("Erro ao buscar dados do dashboard:", error);
+        console.error("Error fetching dashboard data:", error);
       } finally {
         setLoading(false);
       }
@@ -58,13 +59,12 @@ export default function Home() {
   if (loading || !dashboardData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500 font-medium">
-          Carregando dados da dashboard...
-        </p>
+        <p className="text-gray-500 font-medium">Loading dashboard data...</p>
       </div>
     );
   }
 
+  // maps properties to match the required format for RecentLoansTable
   const formattedLoans = dashboardData.ultimosEmprestimos.map((loan) => ({
     id: loan.id,
     bookTitle: loan.livro.titulo,
@@ -83,48 +83,52 @@ export default function Home() {
     categoria: categoryMap[item.categoria.toUpperCase()] || item.categoria,
   }));
 
+  const formattedChartData = dashboardData.contagemPorCategoria.map((item) => ({
+    category: item.categoria,
+    quantity: item.quantidade,
+  }));
+
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center">
-      <PageContainer>
-        <div className="mt-8 flex flex-col gap-8 mb-12">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-sm text-gray-400">
-              Visão geral da biblioteca
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-4 w-full">
-            <MetricCard
-              title="Total de Livros"
-              value={dashboardData.totalLivros.toLocaleString("pt-BR")}
-              icon={BookOpen}
-              iconColorClass="text-[#00C389]"
-              iconBgColorClass="bg-[#00C389]/10"
-            />
-
-            <MetricCard
-              title="Empréstimos Ativos"
-              value={dashboardData.emprestimosAtivos.toString()}
-              icon={Clock}
-              iconColorClass="text-[#00C389]"
-              iconBgColorClass="bg-[#00C389]/10"
-            />
-
-            <MetricCard
-              title="Livros Atrasados"
-              value={dashboardData.emprestimosAtrasados.toString()}
-              icon={AlertCircle}
-              iconColorClass="text-[#FF5B5B]"
-              iconBgColorClass="bg-[#FF5B5B]/10"
-            />
-          </div>
-
-          <CategoryChart data={formattedChartData} />
-
-          <RecentLoansTable loans={formattedLoans} />
+      <div className="w-full max-w-[1000px] mt-8 px-4 flex flex-col gap-8 mb-12">
+        
+        {/* Title Section */}
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-400">Library overview</p>
         </div>
-      </PageContainer>
+
+        {/* Metrics Section */}
+        <div className="flex flex-wrap gap-4 w-full">
+          <MetricCard 
+            title="Total de Livros" 
+            value={dashboardData.totalLivros.toLocaleString("pt-BR")} 
+            icon={BookOpen} 
+            iconColorClass="text-[#00C389]" 
+            iconBgColorClass="bg-[#00C389]/10"
+          />
+          <MetricCard 
+            title="Empréstimos Ativos" 
+            value={dashboardData.emprestimosAtivos.toString()} 
+            icon={Clock} 
+            iconColorClass="text-[#00C389]" 
+            iconBgColorClass="bg-[#00C389]/10"
+          />
+          <MetricCard 
+            title="Livros Atrasados" 
+            value={dashboardData.emprestimosAtrasados.toString()} 
+            icon={AlertCircle} 
+            iconColorClass="text-[#FF5B5B]" 
+            iconBgColorClass="bg-[#FF5B5B]/10"
+          />
+        </div>
+
+        {/* Chart Component receiving translated and refactored keys */}
+        <CategoryChart data={formattedChartData} />
+
+        {/* Recent Loans Component */}
+        <RecentLoansTable loans={formattedLoans} />
+      </div>
     </main>
   );
 }

@@ -4,31 +4,32 @@ import prisma from "../database";
 class DashboardController {
   async get(req: Request, res: Response) {
     try {
-      const hoje = new Date();
+      const today = new Date();
 
-      const totalLivros = await prisma.livro.aggregate({
+      const totalBooks = await prisma.livro.aggregate({
         _sum: { quantidadeTotal: true }
       });
 
-      const emprestimosAtivos = await prisma.emprestimo.count({
+      const activeLoans = await prisma.emprestimo.count({
         where: { status: { in: ['EM_ANDAMENTO', 'ATRASADO'] } }
       });
 
-      const emprestimosAtrasados = await prisma.emprestimo.count({
+      const overdueLoans = await prisma.emprestimo.count({
         where: {
           OR: [
             { status: 'ATRASADO' },
-            { status: 'EM_ANDAMENTO', dataPrevistaDevolucao: { lt: hoje } }
+            { status: 'EM_ANDAMENTO', dataPrevistaDevolucao: { lt: today } }
           ]
         }
       });
 
-      const contagemPorCategoria = await prisma.livro.groupBy({
+      // FIX: sum the actual total quantity of books per category instead of counting rows
+      const booksByCategory = await prisma.livro.groupBy({
         by: ['categoria'],
-        _count: { categoria: true }
+        _sum: { quantidadeTotal: true }
       });
 
-      const ultimosEmprestimos = await prisma.emprestimo.findMany({
+      const latestLoans = await prisma.emprestimo.findMany({
         take: 4,
         orderBy: {
           createdAt: 'desc'
@@ -38,27 +39,26 @@ class DashboardController {
         }
       });
 
-      //flag de status para o front-end na listagem
-      const ultimosEmprestimosFormatados = ultimosEmprestimos.map((emp) => {
-        const estaAtrasado = emp.status === 'EM_ANDAMENTO' && new Date(emp.dataPrevistaDevolucao) < hoje;
+      const formattedLatestLoans = latestLoans.map((loan) => {
+        const isOverdue = loan.status === 'EM_ANDAMENTO' && new Date(loan.dataPrevistaDevolucao) < today;
         return {
-          ...emp,
-          status: estaAtrasado ? 'ATRASADO' : emp.status 
+          ...loan,
+          status: isOverdue ? 'ATRASADO' : loan.status 
         };
       });
 
       return res.status(200).json({
-        totalLivros: totalLivros._sum.quantidadeTotal || 0,
-        emprestimosAtivos, 
-        emprestimosAtrasados, 
-        contagemPorCategoria: contagemPorCategoria.map(item => ({
+        totalLivros: totalBooks._sum.quantidadeTotal || 0,
+        emprestimosAtivos: activeLoans, 
+        emprestimosAtrasados: overdueLoans, 
+        contagemPorCategoria: booksByCategory.map(item => ({
           categoria: item.categoria,
-          quantidade: item._count.categoria
+          quantidade: item._sum.quantidadeTotal || 0 
         })),
-        ultimosEmprestimos: ultimosEmprestimosFormatados
+        ultimosEmprestimos: formattedLatestLoans
       });
     } catch (error) {
-      return res.status(500).json({ error: "Erro ao carregar dados do dashboard." });
+      return res.status(500).json({ error: "Internal server error while loading dashboard data." });
     }
   }
 }
